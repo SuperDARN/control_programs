@@ -124,9 +124,9 @@ struct OptionData opt;
       
 int main(int argc,char *argv[]) {
 
-  int ptabA[7] = {0,9,12,20,22,26,27};
+  int ptab1[7] = {0,9,12,20,22,26,27};
 
-  int lagsA[LAG_SIZE][2] = {
+  int lags1[LAG_SIZE][2] = {
     { 0, 0},        /*  0 */
     {26,27},        /*  1 */
     {20,22},        /*  2 */
@@ -148,9 +148,9 @@ int main(int argc,char *argv[]) {
     {27,27}};		/* alternate lag-0  */
 
 
-  int ptabB[8] = {0,14,22,24,27,31,42,43};
+  int ptab2[8] = {0,14,22,24,27,31,42,43};
 
-  int lagsB[LAG_SIZE][2] = {
+  int lags2[LAG_SIZE][2] = {
     { 0, 0},        /*  0 */
     {42,43},        /*  1 */
     {22,24},        /*  2 */
@@ -178,10 +178,10 @@ int main(int argc,char *argv[]) {
     { 0,24},        /* 24 */
     {43,43}};       /* alternate lag-0 */
 
-  mppulA=7;
-  mplgsA=18;
-  mppulB=8;
-  mplgsB=19;
+  mppul1=7;
+  mplgs1=18;
+  mppul2=8;
+  mplgs2=19;
 
   unsigned char katscan=0;
 
