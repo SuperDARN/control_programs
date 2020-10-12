@@ -4,7 +4,7 @@ interleavesound_stereo
 
 Control Program ID (CPID):
 =========================
-191 (ChA) / 197 (ChB)
+191 (ChA) / 26197 (ChB)
 
 Parameters:
 ==========
