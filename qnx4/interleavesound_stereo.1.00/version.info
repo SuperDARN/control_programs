@@ -5,3 +5,5 @@
 #
 #
 interleavesound_stereo.c 1.00
+sndwrite.c 1.01
+sndwrite.h 1.00

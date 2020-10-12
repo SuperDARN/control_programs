@@ -99,6 +99,8 @@ void FindNumBands(int *numfreqbandsA, int *numfreqbandsB, int *day_nightA, int *
 void RemInvalidBeams(int ibeamsA[], int ibeamsB[]);
 void FindNumBeams(int *numbeamsA, int *numbeamsB, int ibeamsA[], int ibeamsB[], int print);
 
+void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit);
+
 char cmdlne[1024];
 char progid[80]={"$Id: interleavesound_stereo.c,v 1.0 2020/10/09 egthomas Exp $"};
 char progname[256];
@@ -146,7 +148,7 @@ int main(int argc,char *argv[]) {
 
     { 9,26},        /* 17 */
     { 9,27},        /* 18 */
-    {27,27}};		/* alternate lag-0  */
+    {27,27}};       /* alternate lag-0  */
 
   int mppul_7 = 7;
   int mplgs_7 = 18;
@@ -187,6 +189,7 @@ int main(int argc,char *argv[]) {
   int mpinc_8 = 1500;
 
   unsigned char katscan=0;
+  unsigned char nosnd=0;
 
   char *sname=NULL;
   char *ename=NULL;
@@ -302,17 +305,18 @@ int main(int argc,char *argv[]) {
 
   OptionAdd(&opt, "e",	't', &ename);
   OptionAdd(&opt, "sc",	't', &sname);
-  OptionAdd(&opt, "dfA",	'i', &dfrqA);
-  OptionAdd(&opt, "nfA",	'i', &nfrqA);
+  OptionAdd(&opt, "dfA",    'i', &dfrqA);
+  OptionAdd(&opt, "nfA",    'i', &nfrqA);
 
-  OptionAdd(&opt, "offset",	'i',&stereo_offset);
+  OptionAdd(&opt, "offset", 'i',&stereo_offset);
 
-  OptionAdd(&opt, "frA",	'i', &frangA);
-  OptionAdd(&opt, "frB",	'i', &frangB);
-  OptionAdd(&opt, "rgA",	'i', &rsepA);
-  OptionAdd(&opt, "rgB",	'i', &rsepB);
+  OptionAdd(&opt, "frA",    'i', &frangA);
+  OptionAdd(&opt, "frB",    'i', &frangB);
+  OptionAdd(&opt, "rgA",    'i', &rsepA);
+  OptionAdd(&opt, "rgB",    'i', &rsepB);
 
   OptionAdd(&opt, "katscan", 'x', &katscan);
+  OptionAdd(&opt, "nosnd",   'x', &nosnd);
 
   /* set up remaining shell variables */
 
@@ -605,6 +609,10 @@ int main(int argc,char *argv[]) {
 
       for (n=0;n<tnum;n++) RMsgSndSend(tlist[n],&msg);
 
+      if (!nosnd) {
+        /* save the sounding mode data */
+        write_snd_record(progname, &prmB, &fitB);
+      }
 
       ErrLog(errlog,progname,"Polling for exit."); 
 
@@ -950,4 +958,51 @@ void FindNumBeams(int *numbeamsA, int *numbeamsB,
 }
 
 
+/********************** function write_snd_record() ************************/
+/* changed the output to dmap format */
 
+void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit) {
+
+  char data_path[100], data_filename[50], filename[80];
+
+  char *snd_dir;
+  FILE *out;
+
+  char logtxt[1024];
+  int status;
+
+  /* set up the data directory */
+  /* get the snd data dir */
+  snd_dir = getenv("SD_SND_PATH");
+  if (snd_dir == NULL)
+    sprintf(data_path,"/data/snd/");
+  else {
+    memcpy(data_path,snd_dir,strlen(snd_dir));
+    data_path[strlen(snd_dir)] = '/';
+    data_path[strlen(snd_dir)+1] = 0;
+  }
+
+  /* make up the filename */
+  /* YYYYMMDD.HH.rad.snd */
+  sprintf(data_filename, "%04d%02d%02d.%02d.%s", prm->time.yr, prm->time.mo, prm->time.dy, (prm->time.hr/ 2)* 2, getenv("SD_RADARCODE"));
+
+  /* finally make the filename */
+  sprintf(filename, "%s%s.snd", data_path, data_filename);
+
+  /* open the output file */
+  out = fopen(filename,"a");
+  if (out == NULL) {
+    /* crap. might as well go home */
+    sprintf(logtxt,"Unable to open sounding file:%s",filename);
+    ErrLog(errlog,progname,logtxt);
+    return;
+  }
+
+  /* write the sounding record */
+  status = SndFwrite(out, prm, fit);
+  if (status == -1) {
+    ErrLog(errlog,progname,"Error writing sounding record.");
+  }
+
+  fclose(out);
+}
