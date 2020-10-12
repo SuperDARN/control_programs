@@ -124,9 +124,9 @@ struct OptionData opt;
       
 int main(int argc,char *argv[]) {
 
-  int ptab1[7] = {0,9,12,20,22,26,27};
+  int ptab_7[7] = {0,9,12,20,22,26,27};
 
-  int lags1[LAG_SIZE][2] = {
+  int lags_7[LAG_SIZE][2] = {
     { 0, 0},        /*  0 */
     {26,27},        /*  1 */
     {20,22},        /*  2 */
@@ -143,14 +143,18 @@ int main(int argc,char *argv[]) {
     { 9,22},        /* 13 */
     {12,26},        /* 14 */
     {12,27},        /* 15 */
-    { 9,26},        /* 16 */
-    { 9,27},        /* 17 */
+
+    { 9,26},        /* 17 */
+    { 9,27},        /* 18 */
     {27,27}};		/* alternate lag-0  */
 
+  int mppul_7 = 7;
+  int mplgs_7 = 18;
+  int mpinc_7 = 2400;
 
-  int ptab2[8] = {0,14,22,24,27,31,42,43};
+  int ptab_8[8] = {0,14,22,24,27,31,42,43};
 
-  int lags2[LAG_SIZE][2] = {
+  int lags_8[LAG_SIZE][2] = {
     { 0, 0},        /*  0 */
     {42,43},        /*  1 */
     {22,24},        /*  2 */
@@ -178,10 +182,9 @@ int main(int argc,char *argv[]) {
     { 0,24},        /* 24 */
     {43,43}};       /* alternate lag-0 */
 
-  mppul1=7;
-  mplgs1=18;
-  mppul2=8;
-  mplgs2=19;
+  int mppul_8 = 8;
+  int mplgs_8 = 23;
+  int mpinc_8 = 1500;
 
   unsigned char katscan=0;
 
@@ -390,15 +393,21 @@ int main(int argc,char *argv[]) {
 
   /* Set pulse sequence */
   if (katscan) {
-    ptab = ptab2;
-    lags = lags2;
-    mppulA = mppulB = mppul2;
-    mplgsA = mplgsB = mplgs2;
+    ptab = ptab_8;
+    lags = lags_8;
+    mppulA = mppulB = mppul_8;
+    mplgsA = mplgsB = mplgs_8;
+    mpincA = mpincB = mpinc_8;
+    dmpincA = dmpincB = mpinc_8;
+    nmpincA = nmpincB = mpinc_8;
   } else {
-    ptab = ptab1;
-    lags = lags1;
-    mppulA = mppulB = mppul1;
-    mplgsA = mppulB = mplgs1;
+    ptab = ptab_7;
+    lags = lags_7;
+    mppulA = mppulB = mppul_7;
+    mplgsA = mppulB = mplgs_7;
+    mpincA = mpincB = mpinc_7;
+    dmpincA = dmpincB = mpinc_7;
+    nmpincA = nmpincB = mpinc_7;
   }
 
   txplA = (rsepA * 20) / 3;
