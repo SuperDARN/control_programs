@@ -42,6 +42,8 @@
 #include "interface.h"
 #include "hdw.h"
 
+#include "sndwrite.h"
+
 /*
  $Log: interleavesound_stereo.c,v $
  Revision 1.0  2020/10/09 egthomas
