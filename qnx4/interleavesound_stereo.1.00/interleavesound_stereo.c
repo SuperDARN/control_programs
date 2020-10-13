@@ -363,13 +363,13 @@ int main(int argc,char *argv[]) {
     ifreqsB[5] = 8;
     ifreqsB[6] = 10;
   } else if (stid == 41) {
-    ifreqsb[0] = 1;
-    ifreqsb[1] = 2;
-    ifreqsb[2] = 3;
-    ifreqsb[3] = 4;
-    ifreqsb[4] = -1;
-    ifreqsb[5] = -1;
-    ifreqsb[6] = -1;
+    ifreqsB[0] = 1;
+    ifreqsB[1] = 2;
+    ifreqsB[2] = 3;
+    ifreqsB[3] = 4;
+    ifreqsB[4] = -1;
+    ifreqsB[5] = -1;
+    ifreqsB[6] = -1;
   } else {
     printf("Need to add Channel B frequency bands! (stid: %d)\n",stid);
     exit(-1);
@@ -399,16 +399,16 @@ int main(int argc,char *argv[]) {
 
   /* Set pulse sequence */
   if (katscan) {
-    ptab = ptab_8;
-    lags = lags_8;
+    int ptab[8] = ptab_8;
+    int lags[LAG_SIZE][2] = lags_8;
     mppulA = mppulB = mppul_8;
     mplgsA = mplgsB = mplgs_8;
     mpincA = mpincB = mpinc_8;
     dmpincA = dmpincB = mpinc_8;
     nmpincA = nmpincB = mpinc_8;
   } else {
-    ptab = ptab_7;
-    lags = lags_7;
+    int ptab[7] = ptab_7;
+    int lags[LAG_SIZE][2] = lags_7;
     mppulA = mppulB = mppul_7;
     mplgsA = mppulB = mplgs_7;
     mpincA = mpincB = mpinc_7;
