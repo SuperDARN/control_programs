@@ -177,6 +177,7 @@ int main(int argc,char *argv[]) {
   int snd_freq;
   int snd_frqrng=100;
   float snd_time, snd_intt, time_needed=1.25;
+  unsigned char limit_fswitch=0;
 
   if (num_scans == 16) {
     int snd_bms_tot=8;
@@ -268,6 +269,9 @@ int main(int argc,char *argv[]) {
   OptionAdd(&opt, "xcf", 'i', &xcnt);
   OptionAdd(&opt, "frqrng", 'i', &frqrng);
   OptionAdd(&opt, "sfrqrng", 'i',&snd_frqrng); /* sounding FCLR window [kHz] */
+  OptionAdd(&opt, "lf", 'x', &limit_fswitch);  /* limit amount of frequency switching
+                                                  by iterating over all sounding beams
+                                                  before proceeding to next frequency */
 
   arg=OptionProcess(1,argc,argv,&opt,NULL);
 
@@ -510,15 +514,29 @@ int main(int argc,char *argv[]) {
         exitpoll=RadarShell(sid,&rstable);
         if (exitpoll !=0) break;
 
-        /* check for the end of a beam loop */
-        snd_freq_cnt++;
-        if (snd_freq_cnt >= snd_freqs_tot) {
-          /* reset the freq counter and increment the beam counter */
-          snd_freq_cnt = 0;
+        if (limit_fswitch) {
+          /* check for the end of a frequency loop */
           snd_bm_cnt++;
           if (snd_bm_cnt >= snd_bms_tot) {
+            /* reset the beam counter and increment the freq counter */
             snd_bm_cnt = 0;
             odd_beams = !odd_beams;
+            if (!odd_beams) snd_freq_cnt++;
+            if (snd_freq_cnt >= snd_freqs_tot) {
+              snd_freq_cnt = 0;
+            }
+          }
+        } else {
+          /* check for the end of a beam loop (default) */
+          snd_freq_cnt++;
+          if (snd_freq_cnt >= snd_freqs_tot) {
+            /* reset the freq counter and increment the beam counter */
+            snd_freq_cnt = 0;
+            snd_bm_cnt++;
+            if (snd_bm_cnt >= snd_bms_tot) {
+              snd_bm_cnt = 0;
+              odd_beams = !odd_beams;
+            }
           }
         }
 
