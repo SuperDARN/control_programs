@@ -128,6 +128,68 @@ struct OptionData opt;
       
 int main(int argc,char *argv[]) {
 
+  int ptab_7[7] = {0,9,12,20,22,26,27};
+
+  int lags_7[LAG_SIZE][2] = {
+    { 0, 0},        /*  0 */
+    {26,27},        /*  1 */
+    {20,22},        /*  2 */
+    { 9,12},        /*  3 */
+    {22,26},        /*  4 */
+    {22,27},        /*  5 */
+    {20,26},        /*  6 */
+    {20,27},        /*  7 */
+    {12,20},        /*  8 */
+    { 0, 9},        /*  9 */
+    {12,22},        /* 10 */
+    { 9,20},        /* 11 */
+    { 0,12},        /* 12 */
+    { 9,22},        /* 13 */
+    {12,26},        /* 14 */
+    {12,27},        /* 15 */
+
+    { 9,26},        /* 17 */
+    { 9,27},        /* 18 */
+    {27,27}};       /* alternate lag-0 */
+
+  int mppul_7 = 7;
+  int mplgs_7 = 18;
+  int mpinc_7 = 2400;
+
+  int ptab_8[8] = {0,14,22,24,27,31,42,43};
+
+  int lags_8[LAG_SIZE][2] = {
+    { 0, 0},        /*  0 */
+    {42,43},        /*  1 */
+    {22,24},        /*  2 */
+    {24,27},        /*  3 */
+    {27,31},        /*  4 */
+    {22,27},        /*  5 */
+
+    {24,31},        /*  7 */
+    {14,22},        /*  8 */
+    {22,31},        /*  9 */
+    {14,24},        /* 10 */
+    {31,42},        /* 11 */
+    {31,43},        /* 12 */
+    {14,27},        /* 13 */
+    { 0,14},        /* 14 */
+    {27,42},        /* 15 */
+    {27,43},        /* 16 */
+    {14,31},        /* 17 */
+    {24,42},        /* 18 */
+    {24,43},        /* 19 */
+    {22,42},        /* 20 */
+    {22,43},        /* 21 */
+    { 0,22},        /* 22 */
+
+    { 0,24},        /* 24 */
+    {43,43}};       /* alternate lag-0 */
+
+  int mppul_8 = 8;
+  int mplgs_8 = 23;
+  int mpinc_8 = 1500;
+
   unsigned char katscan=0;
   unsigned char nosnd=0;
 
@@ -337,71 +399,17 @@ int main(int argc,char *argv[]) {
 
   /* Set pulse sequence */
   if (katscan) {
-    int ptab[8] = {0,14,22,24,27,31,42,43};
-
-    int lags[LAG_SIZE][2] = {
-      { 0, 0},        /*  0 */
-      {42,43},        /*  1 */
-      {22,24},        /*  2 */
-      {24,27},        /*  3 */
-      {27,31},        /*  4 */
-      {22,27},        /*  5 */
-
-      {24,31},        /*  7 */
-      {14,22},        /*  8 */
-      {22,31},        /*  9 */
-      {14,24},        /* 10 */
-      {31,42},        /* 11 */
-      {31,43},        /* 12 */
-      {14,27},        /* 13 */
-      { 0,14},        /* 14 */
-      {27,42},        /* 15 */
-      {27,43},        /* 16 */
-      {14,31},        /* 17 */
-      {24,42},        /* 18 */
-      {24,43},        /* 19 */
-      {22,42},        /* 20 */
-      {22,43},        /* 21 */
-      { 0,22},        /* 22 */
-
-      { 0,24},        /* 24 */
-      {43,43}};       /* alternate lag-0 */
-
-    mppulA = mppulB = 8;
-    mplgsA = mplgsB = 23;
-    mpincA = mpincB = 1500;
-    dmpincA = dmpincB = 1500;
-    nmpincA = nmpincB = 1500;
+    mppulA = mppulB = mppul_8;
+    mplgsA = mplgsB = mplgs_8;
+    mpincA = mpincB = mpinc_8;
+    dmpincA = dmpincB = mpinc_8;
+    nmpincA = nmpincB = mpinc_8;
   } else {
-    int ptab[7] = {0,9,12,20,22,26,27};
-
-    int lags[LAG_SIZE][2] = {
-      { 0, 0},        /*  0 */
-      {26,27},        /*  1 */
-      {20,22},        /*  2 */
-      { 9,12},        /*  3 */
-      {22,26},        /*  4 */
-      {22,27},        /*  5 */
-      {20,26},        /*  6 */
-      {20,27},        /*  7 */
-      {12,20},        /*  8 */
-      { 0, 9},        /*  9 */
-      {12,22},        /* 10 */
-      { 9,20},        /* 11 */
-      { 0,12},        /* 12 */
-      { 9,22},        /* 13 */
-      {12,26},        /* 14 */
-      {12,27},        /* 15 */
-
-      { 9,26},        /* 17 */
-      { 9,27},        /* 18 */
-      {27,27}};       /* alternate lag-0 */
-
-    mppulA = mppulB = 7;
-    mplgsA = mplgsB = 18;
-    mpincA = mpincB = 2400;
-    dmpincA = dmpincB = 2400;
-    nmpincA = nmpincB = 2400;
+    mppulA = mppulB = mppul_7;
+    mplgsA = mplgsB = mplgs_7;
+    mpincA = mpincB = mpinc_7;
+    dmpincA = dmpincB = mpinc_7;
+    nmpincA = nmpincB = mpinc_7;
   }
 
   txplA = (rsepA * 20) / 3;
@@ -528,10 +536,25 @@ int main(int argc,char *argv[]) {
       txplA = (rsepA * 20) / 3;
       txplB = (rsepB * 20) / 3;
 
-      tsgidA=SiteTimeSeqS(0,ptab);
-      tsgidB=SiteTimeSeqS(1,ptab);
+      if (katscan) {
+        mppulA = mppulB = mppul_8;
+        mplgsA = mplgsB = mplgs_8;
+        mpincA = mpincB = mpinc_8;
 
-      SiteIntegrateS(lags,lags);
+        tsgidA=SiteTimeSeqS(0,ptab_8);
+        tsgidB=SiteTimeSeqS(1,ptab_8);
+
+        SiteIntegrateS(lags_8,lags_8);
+      } else {
+        mppulA = mppulB = mppul_7;
+        mplgsA = mplgsB = mplgs_7;
+        mpincA = mpincB = mpinc_7;
+
+        tsgidA=SiteTimeSeqS(0,ptab_7);
+        tsgidB=SiteTimeSeqS(1,ptab_7);
+
+        SiteIntegrateS(lags_7,lags_7);
+      }
 
 
       if (naveA<0) {
@@ -549,11 +572,13 @@ int main(int argc,char *argv[]) {
       ErrLog(errlog,progname,logtxt);
 
 
-      OpsBuildPrmS(0,&prmA,ptab,lags);
+      if (katscan) OpsBuildPrmS(0,&prmA,ptab_8,lags_8);
+      else         OpsBuildPrmS(0,&prmA,ptab_7,lags_7);
       OpsBuildIQS(0,&iqA);
       OpsBuildRawS(0,&rawA);
 
-      OpsBuildPrmS(1,&prmB,ptab,lags);
+      if (katscan) OpsBuildPrmS(1,&prmB,ptab_8,lags_8);
+      else         OpsBuildPrmS(1,&prmB,ptab_7,lags_7);
       OpsBuildIQS(1,&iqB);
       OpsBuildRawS(1,&rawB);
 
