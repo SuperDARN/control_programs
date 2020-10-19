@@ -128,6 +128,9 @@ struct OptionData opt;
       
 int main(int argc,char *argv[]) {
 
+  int *ptab;
+  int (*lags)[2];
+
   int ptab_7[7] = {0,9,12,20,22,26,27};
 
   int lags_7[LAG_SIZE][2] = {
@@ -399,12 +402,16 @@ int main(int argc,char *argv[]) {
 
   /* Set pulse sequence */
   if (katscan) {
+    ptab = ptab_8;
+    lags = lags_8;
     mppulA = mppulB = mppul_8;
     mplgsA = mplgsB = mplgs_8;
     mpincA = mpincB = mpinc_8;
     dmpincA = dmpincB = mpinc_8;
     nmpincA = nmpincB = mpinc_8;
   } else {
+    ptab = ptab_7;
+    lags = lags_7;
     mppulA = mppulB = mppul_7;
     mplgsA = mplgsB = mplgs_7;
     mpincA = mpincB = mpinc_7;
@@ -536,25 +543,10 @@ int main(int argc,char *argv[]) {
       txplA = (rsepA * 20) / 3;
       txplB = (rsepB * 20) / 3;
 
-      if (katscan) {
-        mppulA = mppulB = mppul_8;
-        mplgsA = mplgsB = mplgs_8;
-        mpincA = mpincB = mpinc_8;
+      tsgidA=SiteTimeSeqS(0,ptab);
+      tsgidB=SiteTimeSeqS(1,ptab);
 
-        tsgidA=SiteTimeSeqS(0,ptab_8);
-        tsgidB=SiteTimeSeqS(1,ptab_8);
-
-        SiteIntegrateS(lags_8,lags_8);
-      } else {
-        mppulA = mppulB = mppul_7;
-        mplgsA = mplgsB = mplgs_7;
-        mpincA = mpincB = mpinc_7;
-
-        tsgidA=SiteTimeSeqS(0,ptab_7);
-        tsgidB=SiteTimeSeqS(1,ptab_7);
-
-        SiteIntegrateS(lags_7,lags_7);
-      }
+      SiteIntegrateS(lags,lags);
 
 
       if (naveA<0) {
@@ -572,13 +564,11 @@ int main(int argc,char *argv[]) {
       ErrLog(errlog,progname,logtxt);
 
 
-      if (katscan) OpsBuildPrmS(0,&prmA,ptab_8,lags_8);
-      else         OpsBuildPrmS(0,&prmA,ptab_7,lags_7);
+      OpsBuildPrmS(0,&prmA,ptab,lags);
       OpsBuildIQS(0,&iqA);
       OpsBuildRawS(0,&rawA);
 
-      if (katscan) OpsBuildPrmS(1,&prmB,ptab_8,lags_8);
-      else         OpsBuildPrmS(1,&prmB,ptab_7,lags_7);
+      OpsBuildPrmS(1,&prmB,ptab,lags);
       OpsBuildIQS(1,&iqB);
       OpsBuildRawS(1,&rawB);
 
