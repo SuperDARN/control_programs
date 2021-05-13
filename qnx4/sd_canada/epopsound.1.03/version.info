@@ -1,0 +1,14 @@
+# $Log: version.info,v $
+# Revision 1.03 2018/07/26 22:00:00 KKrieger
+# Addition of option to change integration time
+#
+# Revision 1.02 2015/11/09 22:00:00 KKrieger
+# Addition of multiple frequencies 
+#
+# Revision 1.01  2014/11/18 21:00:00  KKrieger
+# Add Optional marker pulse sequence
+#
+# Revision 1.00  2013/10/29 21:00:00  KKrieger
+# Initial revision
+#
+epopsound.c 1.03
