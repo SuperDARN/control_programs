@@ -133,12 +133,14 @@ int main(int argc,char *argv[]) {
   int num_scans = 16;
   int forward_beams[16] = { 0,4,8,12, 2,6,10,14, 1,5,9,13, 3,7,11,15 };
   int backward_beams[16]= { 15,11,7,3, 13,9,5,1, 14,10,6,2, 12,8,4,0 };
+  int snd_bms[8] = {0,2,4,6,8,10,12,14};
 
   /* For an eastward-looking radar with 20- or more beams (using only 20 beams to complete every 1 min) */ 
   /*
   int num_scans = 20;
   int forward_beams[20] = { 0,4,8,12,16, 2,6,10,14,18, 1,5,9,13,17, 3,7,11,15,19 };
   int backward_beams[20]= { 19,15,11,7,3, 17,13,9,5,1, 18,14,10,6,2, 16,12,8,4,0 };
+  int snd_bms[10] = {0,2,4,6,8,10,12,14,16,18};
   */
 
   /* For an westward-looking radar with 20- or more beams (using only 20 beams to complete every 1 min) */ 
@@ -148,6 +150,7 @@ int main(int argc,char *argv[]) {
   int num_scans = 20;
   int forward_beams[20] = { 4,8,12,16,20, 6,10,14,18,22, 5,9,13,17,21, 7,11,15,19,23 };
   int backward_beams[20]= { 23,19,15,11,7 ,21,17,13,9,5, 22,18,14,10,6, 20,16,12,8,4 };
+  int snd_bms[10] = {22,20,18,16,14,12,10,8,6,4};
   */
 
   /* max beam number: 21 (22-beam) */ 
@@ -155,6 +158,7 @@ int main(int argc,char *argv[]) {
   int num_scans = 20;
   int forward_beams[20] = { 2,6,10,14,18, 4,8,12,16,20, 3,7,11,15,19, 5,9,13,17,21 };
   int backward_beams[20]= { 21,17,13,9,5, 19,15,11,7,3, 20,16,12,8,4, 18,14,10,6,2 };
+  int snd_bms[10] = {20,18,16,14,12,10,8,6,4,2};
   */
 
   /* ------------------------------------------------------- */ 
@@ -168,16 +172,26 @@ int main(int argc,char *argv[]) {
   /* the file contains one integer value per line */
   int snd_freqs_tot=8;
   int snd_freqs[MAX_SND_FREQS] = {11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 0, 0, 0, 0};
-  int snd_bms[] = {0,2,4,6,8,10,12,14};
   int snd_freq_cnt=0, snd_bm_cnt=0;
-  int snd_bms_tot=8, odd_beams=0;
+  int odd_beams=0;
   int snd_freq;
   int snd_frqrng=100;
-  int fast_intt_sc=3;
-  int fast_intt_us=0;
-  int snd_intt_sc=2;
-  int snd_intt_us=0;
   float snd_time, snd_intt, time_needed=1.25;
+  unsigned char limit_fswitch=0;
+
+  if (num_scans == 16) {
+    int snd_bms_tot=8;
+    int fast_intt_sc=3;
+    int fast_intt_us=0;
+    int snd_intt_sc=2;
+    int snd_intt_us=0;
+  else if (num_scans == 20) {
+    int snd_bms_tot=10;
+    int fast_intt_sc=2;
+    int fast_intt_us=500000;
+    int snd_intt_sc=1;
+    int snd_intt_us=500000;
+  }
 
   snd_intt = snd_intt_sc + snd_intt_us*1e-6;
 
@@ -255,6 +269,9 @@ int main(int argc,char *argv[]) {
   OptionAdd(&opt, "xcf", 'i', &xcnt);
   OptionAdd(&opt, "frqrng", 'i', &frqrng);
   OptionAdd(&opt, "sfrqrng", 'i',&snd_frqrng); /* sounding FCLR window [kHz] */
+  OptionAdd(&opt, "lf", 'x', &limit_fswitch);  /* limit amount of frequency switching
+                                                  by iterating over all sounding beams
+                                                  before proceeding to next frequency */
 
   arg=OptionProcess(1,argc,argv,&opt,NULL);
 
@@ -497,15 +514,29 @@ int main(int argc,char *argv[]) {
         exitpoll=RadarShell(sid,&rstable);
         if (exitpoll !=0) break;
 
-        /* check for the end of a beam loop */
-        snd_freq_cnt++;
-        if (snd_freq_cnt >= snd_freqs_tot) {
-          /* reset the freq counter and increment the beam counter */
-          snd_freq_cnt = 0;
+        if (limit_fswitch) {
+          /* check for the end of a frequency loop */
           snd_bm_cnt++;
           if (snd_bm_cnt >= snd_bms_tot) {
+            /* reset the beam counter and increment the freq counter */
             snd_bm_cnt = 0;
             odd_beams = !odd_beams;
+            if (!odd_beams) snd_freq_cnt++;
+            if (snd_freq_cnt >= snd_freqs_tot) {
+              snd_freq_cnt = 0;
+            }
+          }
+        } else {
+          /* check for the end of a beam loop (default) */
+          snd_freq_cnt++;
+          if (snd_freq_cnt >= snd_freqs_tot) {
+            /* reset the freq counter and increment the beam counter */
+            snd_freq_cnt = 0;
+            snd_bm_cnt++;
+            if (snd_bm_cnt >= snd_bms_tot) {
+              snd_bm_cnt = 0;
+              odd_beams = !odd_beams;
+            }
           }
         }
 

@@ -1,0 +1,9 @@
+# $Log: version.info,v $
+#
+# Revision 1.0  2020/10/09 egthomas
+# Initial revision from stereoscan and stereo_interleave
+#
+#
+interleavesound_stereo.c 1.00
+sndwrite.c 1.01
+sndwrite.h 1.00

@@ -149,6 +149,36 @@ int main(int argc,char *argv[]) {
   unsigned char discretion=0;
 
 
+  /* -------------- Beam sequence for sounding ------------- */
+  /*
+    Please choose one of the snd_bms[] / snd_bms_tot sets below
+    according to the beam number of the radar.
+  */
+
+  /* For a 16-beam radar */
+  int snd_bms[8] = {0,2,4,6,8,10,12,14};
+  int snd_bms_tot = 8;
+
+  /* For an eastward-looking radar with 20- or more beams (using only 20 beams to complete every 1 min) */
+  /*
+  int snd_bms[10] = {0,2,4,6,8,10,12,14,16,18};
+  int snd_bms_tot = 10;
+  */
+
+  /* For an westward-looking radar with 20- or more beams (using only 20 beams to complete every 1 min) */
+
+  /* max beam number: 23 (24-beam) */
+  /*
+  int snd_bms[10] = {22,20,18,16,14,12,10,8,6,4};
+  int snd_bms_tot = 10;
+  */
+
+  /* max beam number: 21 (22-beam) */
+  /*
+  int snd_bms[10] = {20,18,16,14,12,10,8,6,4,2};
+  int snd_bms_tot = 10;
+  */
+
   /* ---------------- Variables for sounding --------------- */
   char snd_filename[100];
   FILE *snd_dat;
@@ -156,18 +186,27 @@ int main(int argc,char *argv[]) {
   /* the file contains one integer value per line */
   int snd_freqs_tot=8;
   int snd_freqs[MAX_SND_FREQS] = {11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 0, 0, 0, 0};
-  int snd_bms[] = {0,2,4,6,8,10,12,14};
   int snd_freq_cnt=0, snd_bm_cnt=0;
-  int snd_bms_tot=8, odd_beams=0;
+  int odd_beams=0;
   int snd_freq;
   int snd_frqrng=100;
-  int normal_intt_sc=6;
-  int normal_intt_us=0;
-  int fast_intt_sc=3;
-  int fast_intt_us=0;
-  int snd_intt_sc=2;
-  int snd_intt_us=0;
   float snd_time, snd_intt, time_needed=1.25;
+
+  if (snd_bms_tot == 8) {
+    int normal_intt_sc=6;
+    int normal_intt_us=0;
+    int fast_intt_sc=3;
+    int fast_intt_us=0;
+    int snd_intt_sc=2;
+    int snd_intt_us=0;
+  else if (snd_bms_tot == 10) {
+    int normal_intt_sc=5;
+    int normal_intt_us=0;
+    int fast_intt_sc=2;
+    int fast_intt_us=500000;
+    int snd_intt_sc=1;
+    int snd_intt_us=500000;
+  }
 
   snd_intt = snd_intt_sc + snd_intt_us*1e-6;
 
