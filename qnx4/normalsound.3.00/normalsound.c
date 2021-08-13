@@ -148,6 +148,7 @@ int main(int argc,char *argv[]) {
   unsigned char fast=0;
   unsigned char discretion=0;
 
+
   /* -------------- Beam sequence for sounding ------------- */
   /*
     Please choose one of the snd_bms[] / snd_bms_tot sets below
@@ -177,7 +178,6 @@ int main(int argc,char *argv[]) {
   int snd_bms[10] = {20,18,16,14,12,10,8,6,4,2};
   int snd_bms_tot = 10;
   */
-
 
   /* ---------------- Variables for sounding --------------- */
   char snd_filename[100];
