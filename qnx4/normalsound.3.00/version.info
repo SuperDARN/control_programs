@@ -1,0 +1,30 @@
+# $Log: version.info,v $
+#
+# Revision 3.0  2020/09/25 egthomas
+# Modification to use dmap sounding file format
+#
+#Revision 2.7  2008/03/15 00:47:44  code
+#Added iqwrite.
+#
+#Revision 2.6  2008/03/14 17:48:19  code
+#Added support for I&Q capture.
+#
+#Revision 2.5  2006/07/12 15:50:45  code
+#Added call to set up command line and limited data written to rawacf and fitacf.
+#
+#Revision 2.4  2006/04/13 18:14:56  barnes
+#Incorporated Dieter Andre's bug fix.
+#
+#Revision 2.3  2006/02/07 20:56:24  barnes
+#Simon Shepherd's modification to the lag table.
+#
+#Revision 2.2  2006/02/07 17:51:13  barnes
+#Added Dieter Andre's improved error logging.
+#
+#Revision 2.1  2005/07/19 18:45:06  barnes
+#First revision included in the ROS 1.08.
+#
+#
+normalsound.c 3.00
+sndwrite.c 1.01
+sndwrite.h 1.00

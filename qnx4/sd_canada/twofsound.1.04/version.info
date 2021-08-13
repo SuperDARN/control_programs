@@ -1,0 +1,22 @@
+#$Log: version.info,v $
+# Revision 1.04 2016/11/08 KKrieger
+# Added channel parameter 
+#
+# Revision 1.03 2014/12/02 KKrieger
+# Added total scan time checking to prevent
+# scan boundary waits if overshoot happens
+#
+# Revision 1.02 2013/10/01 DAndre
+# Removed the sounding code
+# and increased integration times.
+# Added selection between 8-pulse and 7-pulse sequence.
+#
+# Revision 1.01 2012/01/05 18:00:00 DAndre
+# Modified fro ROS 1.25
+#
+# Revision 1.0  2011/11/22 16:00:00 DAndre
+# Adapted from normalsound.2.06
+#
+#
+twofsound.c 1.03
+

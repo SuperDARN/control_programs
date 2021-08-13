@@ -1,0 +1,14 @@
+# $Log: version.info,v $
+# Revision 1.01  2010/10/28 21:00:00  DAndre
+# Initial revision
+# Revision 1.02  2012/01/05 17:00:00  DAndre
+# Modified for ROS 1.25
+# Revision 1.03  2012/11/27 19:00:00  DAndre
+# Added options for dfrang and nfrang
+# Removed option frang
+# Revision 1.04  2013/06/17 18:00:00  DAndre
+# Introduced option intt to make integration
+# time variable
+#
+#
+ddstest.c 1.04
