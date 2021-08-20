@@ -346,7 +346,7 @@ int main(int argc,char *argv[]) {
       } else xcf=0;
     } else xcf=0;
 
-    skip = OpsFindSkip(scnsc,scnus);
+    skip = OpsFindSkip(scnsc,scnus,intsc,intus,0);
 
     bmnum = bms[skip];      /* no longer need forward and backward arrays... */
 
@@ -559,7 +559,7 @@ int main(int argc,char *argv[]) {
       /* now wait for the next interleavescan */
       intsc = fast_intt_sc;
       intus = fast_intt_us;
-      if (scannowait==0) SiteEndScan(scnsc,scnus);
+      if (scannowait==0) SiteEndScan(scnsc,scnus,5000);
     }
 
   } while (exitpoll==0);

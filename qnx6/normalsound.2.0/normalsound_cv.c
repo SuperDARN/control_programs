@@ -200,6 +200,7 @@ int main(int argc,char *argv[])
   OptionAdd(&opt, "di",     'x', &discretion);
   OptionAdd(&opt, "frang",  'i', &frang);
   OptionAdd(&opt, "rsep",   'i', &rsep);
+  OptionAdd(&opt, "nrang",  'i', &nrang);
   OptionAdd(&opt, "dt",     'i', &day);
   OptionAdd(&opt, "nt",     'i', &night);
   OptionAdd(&opt, "df",     'i', &dfrq);
@@ -375,7 +376,7 @@ int main(int argc,char *argv[])
       } else xcf=0;
     } else xcf=0;
 
-    skip=OpsFindSkip(scnsc,scnus);
+    skip=OpsFindSkip(scnsc,scnus,intsc,intus,0);
 
     if (backward) {
       bmnum=sbm-skip;
@@ -606,7 +607,7 @@ int main(int argc,char *argv[])
       /* now wait for the next normalscan */
       intsc = def_intt_sc;
       intus = def_intt_us;
-      if (scannowait==0) SiteEndScan(scnsc,scnus);
+      if (scannowait==0) SiteEndScan(scnsc,scnus,5000);
     }
 
   } while (exitpoll == 0);
@@ -628,6 +629,7 @@ void usage(void)
     printf("    -di     : indicates running during discretionary time\n");
     printf(" -frang int : delay to first range (km) [180]\n");
     printf("  -rsep int : range separation (km) [45]\n");
+    printf(" -nrang int : number of range gates [100]\n");
     printf("    -dt int : hour when day freq. is used [site.c]\n");
     printf("    -nt int : hour when night freq. is used [site.c]\n");
     printf("    -df int : daytime frequency (kHz) [site.c]\n");
