@@ -109,47 +109,48 @@ int SndWrite(int fid, struct RadarParm *prm, struct FitData *fit) {
   if (prm->xcf !=0) xnum=snum;
   else xnum=0;
 
-  if (snum==0) return 0;
+  if (snum !=0) {
 
-  slist=DataMapStoreArray(ptr,"slist",DATASHORT,1,&snum,NULL);
+    slist=DataMapStoreArray(ptr,"slist",DATASHORT,1,&snum,NULL);
 
-  qflg=DataMapStoreArray(ptr,"qflg",DATACHAR,1,&snum,NULL);
-  gflg=DataMapStoreArray(ptr,"gflg",DATACHAR,1,&snum,NULL);
+    qflg=DataMapStoreArray(ptr,"qflg",DATACHAR,1,&snum,NULL);
+    gflg=DataMapStoreArray(ptr,"gflg",DATACHAR,1,&snum,NULL);
 
-  v=DataMapStoreArray(ptr,"v",DATAFLOAT,1,&snum,NULL);
-  v_e=DataMapStoreArray(ptr,"v_e",DATAFLOAT,1,&snum,NULL);
-  p_l=DataMapStoreArray(ptr,"p_l",DATAFLOAT,1,&snum,NULL);
-  w_l=DataMapStoreArray(ptr,"w_l",DATAFLOAT,1,&snum,NULL);
+    v=DataMapStoreArray(ptr,"v",DATAFLOAT,1,&snum,NULL);
+    v_e=DataMapStoreArray(ptr,"v_e",DATAFLOAT,1,&snum,NULL);
+    p_l=DataMapStoreArray(ptr,"p_l",DATAFLOAT,1,&snum,NULL);
+    w_l=DataMapStoreArray(ptr,"w_l",DATAFLOAT,1,&snum,NULL);
 
-  if (prm->xcf !=0) {
-    x_qflg=DataMapStoreArray(ptr,"x_qflg",DATACHAR,1,&xnum,NULL);
+    if (prm->xcf !=0) {
+      x_qflg=DataMapStoreArray(ptr,"x_qflg",DATACHAR,1,&xnum,NULL);
 
-    phi0=DataMapStoreArray(ptr,"phi0",DATAFLOAT,1,&xnum,NULL);
-    phi0_e=DataMapStoreArray(ptr,"phi0_e",DATAFLOAT,1,&xnum,NULL);
-  }
+      phi0=DataMapStoreArray(ptr,"phi0",DATAFLOAT,1,&xnum,NULL);
+      phi0_e=DataMapStoreArray(ptr,"phi0_e",DATAFLOAT,1,&xnum,NULL);
+    }
 
-  x=0;
+    x=0;
 
-  for (c=0;c<prm->nrang;c++) {
-    if ( (fit->rng[c].qflg==1) ||
-         ((fit->xrng !=NULL) && (fit->xrng[c].qflg==1))) {
-      slist[x]=c;
+    for (c=0;c<prm->nrang;c++) {
+      if ( (fit->rng[c].qflg==1) ||
+           ((fit->xrng !=NULL) && (fit->xrng[c].qflg==1))) {
+        slist[x]=c;
 
-      qflg[x]=fit->rng[c].qflg;
-      gflg[x]=fit->rng[c].gsct;
+        qflg[x]=fit->rng[c].qflg;
+        gflg[x]=fit->rng[c].gsct;
 
-      p_l[x]=fit->rng[c].p_l;
-      v[x]=fit->rng[c].v;
-      v_e[x]=fit->rng[c].v_err;
-      w_l[x]=fit->rng[c].w_l;
+        p_l[x]=fit->rng[c].p_l;
+        v[x]=fit->rng[c].v;
+        v_e[x]=fit->rng[c].v_err;
+        w_l[x]=fit->rng[c].w_l;
 
-      if (xnum !=0) {
-        x_qflg[x]=fit->xrng[c].qflg;
+        if (xnum !=0) {
+          x_qflg[x]=fit->xrng[c].qflg;
 
-        phi0[x]=fit->xrng[c].phi0;
-        phi0_e[x]=fit->xrng[c].phi0_err;
+          phi0[x]=fit->xrng[c].phi0;
+          phi0_e[x]=fit->xrng[c].phi0_err;
+        }
+        x++;
       }
-      x++;
     }
   }
 
