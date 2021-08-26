@@ -128,6 +128,8 @@ int main(int argc,char *argv[]) {
   int status=0;
   int fixfrq=0;
 
+  int def_nrang=100;
+
   /* new variables for dynamically creating beam sequences */
   int *bms;           /* scanning beams                                     */
   int intgt[20];      /* start times of each integration period             */
@@ -160,6 +162,7 @@ int main(int argc,char *argv[]) {
   int snd_bms_tot=10, odd_beams=0;
   int snd_freq;
   int snd_frqrng=100;
+  int snd_nrang=75;
   int fast_intt_sc=2;
   int fast_intt_us=500000;
   int snd_intt_sc=1;
@@ -181,7 +184,7 @@ int main(int argc,char *argv[]) {
   mplgs  = 23;
   mpinc  = 1500;
   dmpinc = 1500;
-  nrang  = 100;
+  nrang  = def_nrang;
   rsep   = 45;
   txpl   = 300;     /* note: recomputed below */
   dfrq   = 10200;
@@ -324,6 +327,8 @@ int main(int argc,char *argv[]) {
     exit (1);
   }
 
+  def_nrang = nrang;
+
   if (discretion) cp = -cp;
 
   txpl=(rsep*20)/3;     /* computing TX pulse length */
@@ -338,9 +343,9 @@ int main(int argc,char *argv[]) {
 
   OpsFitACFStart();
 
-  tsgid=SiteTimeSeq(ptab);  /* get the timing sequence */
-
   do {
+
+    tsgid=SiteTimeSeq(ptab);  /* get the timing sequence */
 
     if (SiteStartScan() !=0) continue;
 
@@ -474,6 +479,7 @@ int main(int argc,char *argv[]) {
       while (snd_time-snd_intt > time_needed) {
         intsc = snd_intt_sc;
         intus = snd_intt_us;
+        nrang = snd_nrang;
 
         /* set the beam */
         bmnum = snd_bms[snd_bm_cnt] + odd_beams;
@@ -482,6 +488,7 @@ int main(int argc,char *argv[]) {
         snd_freq = snd_freqs[snd_freq_cnt];
 
         /* the scanning code is here */
+        tsgid = SiteTimeSeq(ptab);
         sprintf(logtxt,"Integrating SND beam:%d intt:%ds.%dus (%d:%d:%d:%d)",bmnum,intsc,intus,hr,mt,sc,us);
         ErrLog(errlog.sock,progname,logtxt);
         ErrLog(errlog.sock,progname,"Setting SND beam.");
@@ -494,7 +501,6 @@ int main(int argc,char *argv[]) {
  *           sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
  *                     ErrLog(errlog.sock, progname, logtxt);
  *                     */
-        tsgid = SiteTimeSeq(ptab);
         nave = SiteIntegrate(lags);
         if (nave < 0) {
           sprintf(logtxt, "SND integration error: %d", nave);
@@ -577,6 +583,7 @@ int main(int argc,char *argv[]) {
       /* now wait for the next interleavescan */
       intsc = fast_intt_sc;
       intus = fast_intt_us;
+      nrang = def_nrang;
       if (scannowait==0) SiteEndScan(scnsc,scnus);
     }
 

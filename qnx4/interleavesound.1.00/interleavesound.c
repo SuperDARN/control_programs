@@ -120,6 +120,8 @@ int main(int argc,char *argv[]) {
   int skip;
   int cnt=0;
 
+  int def_nrang=75;
+
   unsigned char discretion=0;
 
   /* ---------- Beam sequence for interleavedscan ---------- */
@@ -176,6 +178,7 @@ int main(int argc,char *argv[]) {
   int odd_beams=0;
   int snd_freq;
   int snd_frqrng=100;
+  int snd_nrang=75;
   float snd_time, snd_intt, time_needed=1.25;
   unsigned char limit_fswitch=0;
 
@@ -239,7 +242,7 @@ int main(int argc,char *argv[]) {
   mplgs  = 23;
   mpinc  = 1500;
   dmpinc = 1500;
-  nrang  = 75;
+  nrang  = def_nrang;
   rsep   = 45;
   txpl   = 300; /* recalculated below with rsep */
   frang  = 180;
@@ -284,6 +287,8 @@ int main(int argc,char *argv[]) {
   OpsLogStart(errlog,progname,argc,argv);
 
   SiteSetupHardware();
+
+  def_nrang = nrang;
 
   // set a negative CPID for discretionary time
   if (discretion) cp = -cp;
@@ -444,6 +449,7 @@ int main(int argc,char *argv[]) {
       while (snd_time-snd_intt > time_needed) {
         intsc = snd_intt_sc;
         intus = snd_intt_us;
+        nrang = snd_nrang;
 
         /* set the beam */
         bmnum = snd_bms[snd_bm_cnt] + odd_beams;
@@ -548,6 +554,7 @@ int main(int argc,char *argv[]) {
       /* now wait for the next interleavescan */
       intsc = fast_intt_sc;
       intus = fast_intt_us;
+      nrang = def_nrang;
       OpsWaitBoundary(scnsc,scnus);
     }
 
