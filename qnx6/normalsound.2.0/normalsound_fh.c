@@ -334,7 +334,7 @@ int main(int argc,char *argv[])
   total_scan_usecs = (scnsc-snd_sc)*1E6 + scnus;
   total_integration_usecs = total_scan_usecs/beams;
   def_intt_sc = total_integration_usecs/1E6;
-  def_intt_us = total_integration_usecs - (intsc*1e6);
+  def_intt_us = total_integration_usecs - (def_intt_sc*1e6);
 
   intsc = def_intt_sc;
   intus = def_intt_us;
