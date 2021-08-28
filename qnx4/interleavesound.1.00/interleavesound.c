@@ -191,7 +191,7 @@ int main(int argc,char *argv[]) {
   else if (num_scans == 20) {
     int snd_bms_tot=10;
     int fast_intt_sc=2;
-    int fast_intt_us=500000;
+    int fast_intt_us=400000;
     int snd_intt_sc=1;
     int snd_intt_us=500000;
   }

@@ -157,7 +157,7 @@ int main(int argc,char *argv[]) {
   int snd_frqrng=100;
   int snd_nrang=75;
   int fast_intt_sc=2;
-  int fast_intt_us=500000;
+  int fast_intt_us=400000;
   int snd_intt_sc=1;
   int snd_intt_us=500000;
   float snd_time, snd_intt, time_needed=1.25;
