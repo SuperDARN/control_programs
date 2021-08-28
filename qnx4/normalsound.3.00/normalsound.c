@@ -203,7 +203,7 @@ int main(int argc,char *argv[]) {
     int normal_intt_sc=5;
     int normal_intt_us=0;
     int fast_intt_sc=2;
-    int fast_intt_us=500000;
+    int fast_intt_us=400000;
     int snd_intt_sc=1;
     int snd_intt_us=500000;
   }
