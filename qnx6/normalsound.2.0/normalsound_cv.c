@@ -141,19 +141,19 @@ int main(int argc,char *argv[])
   unsigned char hlp=0;
 
   if (debug) {
-    printf("Size of int %ld\n",sizeof(int));
-    printf("Size of long %ld\n",sizeof(long));
-    printf("Size of long long %ld\n",sizeof(long long));
-    printf("Size of struct TRTimes %ld\n",sizeof(struct TRTimes));
-    printf("Size of struct SeqPRM %ld\n",sizeof(struct SeqPRM));
-    printf("Size of struct RosData %ld\n",sizeof(struct RosData));
-    printf("Size of struct DataPRM %ld\n",sizeof(struct DataPRM));
-    printf("Size of Struct ControlPRM  %ld\n",sizeof(struct ControlPRM));
-    printf("Size of Struct RadarPRM  %ld\n",sizeof(struct RadarPRM));
-    printf("Size of Struct ROSMsg  %ld\n",sizeof(struct ROSMsg));
-    printf("Size of Struct CLRFreq  %ld\n",sizeof(struct CLRFreqPRM));
-    printf("Size of Struct TSGprm  %ld\n",sizeof(struct TSGprm));
-    printf("Size of Struct SiteSettings  %ld\n",sizeof(struct SiteSettings));
+    printf("Size of int %u\n",sizeof(int));
+    printf("Size of long %u\n",sizeof(long));
+    printf("Size of long long %u\n",sizeof(long long));
+    printf("Size of struct TRTimes %u\n",sizeof(struct TRTimes));
+    printf("Size of struct SeqPRM %u\n",sizeof(struct SeqPRM));
+    printf("Size of struct RosData %u\n",sizeof(struct RosData));
+    printf("Size of struct DataPRM %u\n",sizeof(struct DataPRM));
+    printf("Size of Struct ControlPRM  %u\n",sizeof(struct ControlPRM));
+    printf("Size of Struct RadarPRM  %u\n",sizeof(struct RadarPRM));
+    printf("Size of Struct ROSMsg  %u\n",sizeof(struct ROSMsg));
+    printf("Size of Struct CLRFreq  %u\n",sizeof(struct CLRFreqPRM));
+    printf("Size of Struct TSGprm  %u\n",sizeof(struct TSGprm));
+    printf("Size of Struct SiteSettings  %u\n",sizeof(struct SiteSettings));
   }
 
 
@@ -353,8 +353,6 @@ int main(int argc,char *argv[])
   printf("Entering Scan loop Station ID: %s  %d\n",ststr,stid);
   do {
 
-//    if (timed) gettimeofday(&t0,NULL);
-
     printf("Preparing SiteTimeSeq Station ID: %s  %d\n",ststr,stid);
     tsgid=SiteTimeSeq(ptab);
 
@@ -392,8 +390,6 @@ int main(int argc,char *argv[])
 
     do {
 
-//      if (timed) gettimeofday(&t1,NULL);
-
       TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
 
       if (OpsDayNight()==1) {
@@ -425,7 +421,6 @@ int main(int argc,char *argv[])
       sprintf(logtxt,"Transmitting on: %d (Noise=%g)",tfreq,noise);
       ErrLog(errlog.sock,progname,logtxt);
 
-//      if (timed) gettimeofday(&t2,NULL);
       nave=SiteIntegrate(lags);
       if (nave < 0) {
         sprintf(logtxt,"Integration error:%d",nave);
