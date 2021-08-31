@@ -463,10 +463,6 @@ int main(int argc,char *argv[])
       for (n=0;n<tnum;n++) RMsgSndSend(task[n].sock,&msg);
 
       for (n=0; n<msg.num; n++) {
-        //if (msg.data[n].type == PRM_TYPE) free(msg.ptr[n]);
-        //if (msg.data[n].type == IQ_TYPE) free(msg.ptr[n]);
-        //if (msg.data[n].type == RAW_TYPE) free(msg.ptr[n]);
-        //if (msg.data[n].type == FIT_TYPE) free(msg.ptr[n]);
         if ( (msg.data[n].type == PRM_TYPE) ||
              (msg.data[n].type == IQ_TYPE)  ||
              (msg.data[n].type == RAW_TYPE) ||
