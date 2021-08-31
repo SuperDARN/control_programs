@@ -116,7 +116,6 @@ int main(int argc,char *argv[])
   char logtxt[1024];
 
   int exitpoll=0;
-  int scannowait=0;
  
   int scnsc=120;    /* total scan period in seconds */
   int scnus=0;
@@ -481,7 +480,6 @@ int main(int argc,char *argv[])
 
     } while (1);
 
-    ErrLog(errlog.sock,progname,"Waiting for scan boundary.");
 
     if (exitpoll==0) {
       /* In here comes the sounder code */
@@ -491,15 +489,20 @@ int main(int argc,char *argv[])
       /* set the xcf variable to do cross-correlations (AOA) */
       xcf = 1;
 
+      /* set the sounding mode integration time and number of ranges */
+      intsc = snd_intt_sc;
+      intus = snd_intt_us;
+      nrang = snd_nrang;
+
+      /* make a new timing sequence for the sounding */
+      tsgid = SiteTimeSeq(ptab);
+
       /* we have time until the end of the minute to do sounding */
       /* minus a safety factor given in time_needed */
       TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
       snd_time = 60.0 - (sc + us*1e-6);
 
       while (snd_time-snd_intt > time_needed) {
-        intsc = snd_intt_sc;
-        intus = snd_intt_us;
-        nrang = snd_nrang;
 
         /* set the beam */
         bmnum = snd_bms[snd_bm_cnt] + odd_beams;
@@ -508,19 +511,19 @@ int main(int argc,char *argv[])
         snd_freq = snd_freqs[snd_freq_cnt];
 
         /* the scanning code is here */
-        tsgid = SiteTimeSeq(ptab);
         sprintf(logtxt,"Integrating SND beam:%d intt:%ds.%dus (%d:%d:%d:%d)",bmnum,intsc,intus,hr,mt,sc,us);
         ErrLog(errlog.sock,progname,logtxt);
         ErrLog(errlog.sock,progname,"Setting SND beam.");
         SiteStartIntt(intsc,intus);
+
         ErrLog(errlog.sock, progname, "Doing SND clear frequency search.");
         sprintf(logtxt, "FRQ: %d %d", snd_freq, snd_frqrng);
         ErrLog(errlog.sock,progname, logtxt);
         tfreq = SiteFCLR(snd_freq, snd_freq + snd_frqrng);
-/*
- *           sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
- *                     ErrLog(errlog.sock, progname, logtxt);
- *                     */
+
+        sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
+        ErrLog(errlog.sock, progname, logtxt);
+
         nave = SiteIntegrate(lags);
         if (nave < 0) {
           sprintf(logtxt, "SND integration error: %d", nave);
@@ -601,10 +604,13 @@ int main(int argc,char *argv[])
       }
 
       /* now wait for the next normalscan */
+      ErrLog(errlog.sock,progname,"Waiting for scan boundary.");
+
       intsc = def_intt_sc;
       intus = def_intt_us;
       nrang = def_nrang;
-      if (scannowait==0) SiteEndScan(scnsc,scnus,5000);
+
+      SiteEndScan(scnsc,scnus,5000);
     }
 
   } while (exitpoll == 0);
@@ -692,6 +698,8 @@ void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit
   status = SndFwrite(out, prm, fit);
   if (status == -1) {
     ErrLog(errlog.sock,progname,"Error writing sounding record.");
+  } else {
+    ErrLog(errlog.sock,progname,"Sounding record successfully written.");
   }
 
   fclose(out);

@@ -120,7 +120,7 @@ int main(int argc,char *argv[]) {
   int skip;
   int cnt=0;
 
-  int def_nrang=75;
+  int def_nrang=0;
 
   unsigned char discretion=0;
 
@@ -242,7 +242,7 @@ int main(int argc,char *argv[]) {
   mplgs  = 23;
   mpinc  = 1500;
   dmpinc = 1500;
-  nrang  = def_nrang;
+  nrang  = 75;
   rsep   = 45;
   txpl   = 300; /* recalculated below with rsep */
   frang  = 180;
@@ -373,7 +373,6 @@ int main(int argc,char *argv[]) {
       SiteSetFreq(tfreq);
 
       sprintf(logtxt,"Transmitting on: %d (Noise=%g)",tfreq,noise);
-
       ErrLog(errlog,progname,logtxt);
 
       tsgid=SiteTimeSeq(ptab);
@@ -431,7 +430,7 @@ int main(int argc,char *argv[]) {
       }
 
     } while (1);
-    ErrLog(errlog,progname,"Waiting for scan boundary.");
+
 
     if (exitpoll == 0) {
       /* In here comes the sounder code */
@@ -441,15 +440,17 @@ int main(int argc,char *argv[]) {
       /* set the xcf variable to do cross-correlations (AOA) */
       xcf = 1;
 
+      /* set the sounding mode integration time and number of ranges */
+      intsc = snd_intt_sc;
+      intus = snd_intt_us;
+      nrang = snd_nrang;
+
       /* we have time until the end of the minute to do sounding */
       /* minus a safety factor given in time_needed */
       TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
       snd_time = 60.0 - (sc + us*1e-6);
 
       while (snd_time-snd_intt > time_needed) {
-        intsc = snd_intt_sc;
-        intus = snd_intt_us;
-        nrang = snd_nrang;
 
         /* set the beam */
         bmnum = snd_bms[snd_bm_cnt] + odd_beams;
@@ -463,14 +464,15 @@ int main(int argc,char *argv[]) {
         ErrLog(errlog,progname,"Setting SND beam.");
         SiteSetIntt(intsc,intus);
         SiteSetBeam(bmnum);
+
         ErrLog(errlog, progname, "Doing SND clear frequency search.");
         if (SiteFCLR(snd_freq, snd_freq + snd_frqrng)==FREQ_LOCAL)
           ErrLog(errlog,progname,"Frequency Synthesizer in local mode.");
         SiteSetFreq(tfreq);
-/*
+
         sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
         ErrLog(errlog, progname, logtxt);
-*/
+
         tsgid = SiteTimeSeq(ptab);
         nave = SiteIntegrate(lags);
         if (nave < 0) {
@@ -552,9 +554,12 @@ int main(int argc,char *argv[]) {
       }
 
       /* now wait for the next interleavescan */
+      ErrLog(errlog,progname,"Waiting for scan boundary.");
+
       intsc = fast_intt_sc;
       intus = fast_intt_us;
       nrang = def_nrang;
+
       OpsWaitBoundary(scnsc,scnus);
     }
 
@@ -613,6 +618,8 @@ void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit
   status = SndFwrite(out, prm, fit);
   if (status == -1) {
     ErrLog(errlog,progname,"Error writing sounding record.");
+  } else {
+    ErrLog(errlog,progname,"Sounding record succesfully written.");
   }
 
   fclose(out);

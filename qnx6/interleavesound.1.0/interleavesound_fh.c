@@ -116,7 +116,6 @@ int main(int argc,char *argv[]) {
   char tempLog[40];
 
   int exitpoll=0;
-  int scannowait=0;
 
   int scnsc=60;
   int scnus=0;
@@ -128,7 +127,7 @@ int main(int argc,char *argv[]) {
   int status=0;
   int fixfrq=0;
 
-  int def_nrang=100;
+  int def_nrang=0;
 
   /* new variables for dynamically creating beam sequences */
   int *bms;           /* scanning beams                                     */
@@ -184,7 +183,7 @@ int main(int argc,char *argv[]) {
   mplgs  = 23;
   mpinc  = 1500;
   dmpinc = 1500;
-  nrang  = def_nrang;
+  nrang  = 100;
   rsep   = 45;
   txpl   = 300;     /* note: recomputed below */
   dfrq   = 10200;
@@ -263,9 +262,6 @@ int main(int argc,char *argv[]) {
     fprintf(stderr,"Sounder File: %s not found\n",snd_filename);
   }
 
-  /* end of main Dartmouth mods */
-  /* not sure if -nrang commandline option works */
-
   if ((errlog.sock=TCPIPMsgOpen(errlog.host,errlog.port))==-1) {
     fprintf(stderr,"Error connecting to error log.\n");
   }
@@ -275,16 +271,8 @@ int main(int argc,char *argv[]) {
 
   for (n=0;n<tnum;n++) task[n].port+=baseport;
 
-  /* rst/usr/codebase/superdarn/src.lib/os/ops.1.10/src/setup.c */
   OpsStart(ststr);
 
-  /* rst/usr/codebase/superdarn/src.lib/os/site.1.3/src/build.c */
-  /* note that stid is a global variable set in the previous function...
-      rst/usr/codebase/superdarn/src.lib/os/ops.1.10/src/global.c */
-  /* This does not seem to be the case and the code does not compile	
-    with an error of 'makes pointer from integer without a cast' */
-
-  /* status=SiteBuild(stid); */
   status=SiteBuild(ststr,NULL); /* second argument is version string */
 
   if (status==-1) {
@@ -310,7 +298,6 @@ int main(int argc,char *argv[]) {
 
   strncpy(combf,progid,80);
 
-  /* rst/usr/codebase/superdarn/src.lib/os/ops.1.10/src */
   OpsSetupCommand(argc,argv);
   OpsSetupShell();
 
@@ -461,7 +448,6 @@ int main(int argc,char *argv[]) {
 
     } while (1);
 
-    ErrLog(errlog.sock,progname,"Waiting for scan boundary.");
 
     if (exitpoll==0) {
       /* In here comes the sounder code */
@@ -471,15 +457,20 @@ int main(int argc,char *argv[]) {
       /* set the xcf variable to do cross-correlations (AOA) */
       xcf = 1;
 
+      /* set the sounding mode integration time and number of ranges */
+      intsc = snd_intt_sc;
+      intus = snd_intt_us;
+      nrang = snd_nrang;
+
+      /* make a new timing sequence for the sounding */
+      tsgid = SiteTimeSeq(ptab);
+
       /* we have time until the end of the minute to do sounding */
       /* minus a safety factor given in time_needed */
       TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
       snd_time = 60.0 - (sc + us*1e-6);
 
       while (snd_time-snd_intt > time_needed) {
-        intsc = snd_intt_sc;
-        intus = snd_intt_us;
-        nrang = snd_nrang;
 
         /* set the beam */
         bmnum = snd_bms[snd_bm_cnt] + odd_beams;
@@ -488,19 +479,19 @@ int main(int argc,char *argv[]) {
         snd_freq = snd_freqs[snd_freq_cnt];
 
         /* the scanning code is here */
-        tsgid = SiteTimeSeq(ptab);
         sprintf(logtxt,"Integrating SND beam:%d intt:%ds.%dus (%d:%d:%d:%d)",bmnum,intsc,intus,hr,mt,sc,us);
         ErrLog(errlog.sock,progname,logtxt);
         ErrLog(errlog.sock,progname,"Setting SND beam.");
         SiteStartIntt(intsc,intus);
+
         ErrLog(errlog.sock, progname, "Doing SND clear frequency search.");
         sprintf(logtxt, "FRQ: %d %d", snd_freq, snd_frqrng);
         ErrLog(errlog.sock,progname, logtxt);
         tfreq = SiteFCLR(snd_freq, snd_freq + snd_frqrng);
-/*
- *           sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
- *                     ErrLog(errlog.sock, progname, logtxt);
- *                     */
+
+        sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
+        ErrLog(errlog.sock, progname, logtxt);
+
         nave = SiteIntegrate(lags);
         if (nave < 0) {
           sprintf(logtxt, "SND integration error: %d", nave);
@@ -581,10 +572,13 @@ int main(int argc,char *argv[]) {
       }
 
       /* now wait for the next interleavescan */
+      ErrLog(errlog.sock,progname,"Waiting for scan boundary.");
+
       intsc = fast_intt_sc;
       intus = fast_intt_us;
       nrang = def_nrang;
-      if (scannowait==0) SiteEndScan(scnsc,scnus);
+
+      SiteEndScan(scnsc,scnus);
     }
 
   } while (exitpoll==0);
@@ -670,6 +664,8 @@ void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit
   status = SndFwrite(out, prm, fit);
   if (status == -1) {
     ErrLog(errlog.sock,progname,"Error writing sounding record.");
+  } else {
+    ErrLog(errlog.sock,progname,"Sounding record successfully written.");
   }
 
   fclose(out);

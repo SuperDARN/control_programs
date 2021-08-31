@@ -119,7 +119,6 @@ int main(int argc,char *argv[])
   char logtxt[1024];
 
   int exitpoll=0;
-  int scannowait=0;
  
   int scnsc=120;    /* total scan period in seconds */
   int scnus=0;
@@ -144,19 +143,19 @@ int main(int argc,char *argv[])
   unsigned char hlp=0;
 
   if (debug) {
-    printf("Size of int %ld\n",sizeof(int));
-    printf("Size of long %ld\n",sizeof(long));
-    printf("Size of long long %ld\n",sizeof(long long));
-    printf("Size of struct TRTimes %ld\n",sizeof(struct TRTimes));
-    printf("Size of struct SeqPRM %ld\n",sizeof(struct SeqPRM));
-    printf("Size of struct RosData %ld\n",sizeof(struct RosData));
-    printf("Size of struct DataPRM %ld\n",sizeof(struct DataPRM));
-    printf("Size of Struct ControlPRM  %ld\n",sizeof(struct ControlPRM));
-    printf("Size of Struct RadarPRM  %ld\n",sizeof(struct RadarPRM));
-    printf("Size of Struct ROSMsg  %ld\n",sizeof(struct ROSMsg));
-    printf("Size of Struct CLRFreq  %ld\n",sizeof(struct CLRFreqPRM));
-    printf("Size of Struct TSGprm  %ld\n",sizeof(struct TSGprm));
-    printf("Size of Struct SiteSettings  %ld\n",sizeof(struct SiteSettings));
+    printf("Size of int %u\n",sizeof(int));
+    printf("Size of long %u\n",sizeof(long));
+    printf("Size of long long %u\n",sizeof(long long));
+    printf("Size of struct TRTimes %u\n",sizeof(struct TRTimes));
+    printf("Size of struct SeqPRM %u\n",sizeof(struct SeqPRM));
+    printf("Size of struct RosData %u\n",sizeof(struct RosData));
+    printf("Size of struct DataPRM %u\n",sizeof(struct DataPRM));
+    printf("Size of Struct ControlPRM  %u\n",sizeof(struct ControlPRM));
+    printf("Size of Struct RadarPRM  %u\n",sizeof(struct RadarPRM));
+    printf("Size of Struct ROSMsg  %u\n",sizeof(struct ROSMsg));
+    printf("Size of Struct CLRFreq  %u\n",sizeof(struct CLRFreqPRM));
+    printf("Size of Struct TSGprm  %u\n",sizeof(struct TSGprm));
+    printf("Size of Struct SiteSettings  %u\n",sizeof(struct SiteSettings));
   }
 
 
@@ -205,6 +204,7 @@ int main(int argc,char *argv[])
   OptionAdd(&opt, "di",     'x', &discretion);
   OptionAdd(&opt, "frang",  'i', &frang);
   OptionAdd(&opt, "rsep",   'i', &rsep);
+  OptionAdd(&opt, "nrang",  'i', &nrang);
   OptionAdd(&opt, "dt",     'i', &day);
   OptionAdd(&opt, "nt",     'i', &night);
   OptionAdd(&opt, "df",     'i', &dfrq);
@@ -289,9 +289,7 @@ int main(int argc,char *argv[])
 
   OpsStart(ststr);
 
-  /* status=SiteBuild(stid); */
   status=SiteBuild(ststr,NULL); /* second argument is version string */
-
   if (status==-1) {
     fprintf(stderr,"Could not identify station.\n");
     exit(1);
@@ -364,8 +362,6 @@ int main(int argc,char *argv[])
   printf("Entering Scan loop Station ID: %s  %d\n",ststr,stid);
   do {
 
-//    if (timed) gettimeofday(&t0,NULL);
-
     printf("Preparing SiteTimeSeq Station ID: %s  %d\n",ststr,stid);
     tsgid=SiteTimeSeq(ptab);
 
@@ -403,8 +399,6 @@ int main(int argc,char *argv[])
 
     do {
 
-//      if (timed) gettimeofday(&t1,NULL);
-
       TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
 
       if (OpsDayNight()==1) {
@@ -436,7 +430,6 @@ int main(int argc,char *argv[])
       sprintf(logtxt,"Transmitting on: %d (Noise=%g)",tfreq,noise);
       ErrLog(errlog.sock,progname,logtxt);
 
-//      if (timed) gettimeofday(&t2,NULL);
       nave=SiteIntegrate(lags);
       if (nave < 0) {
         sprintf(logtxt,"Integration error:%d",nave);
@@ -479,10 +472,6 @@ int main(int argc,char *argv[])
       for (n=0;n<tnum;n++) RMsgSndSend(task[n].sock,&msg);
 
       for (n=0; n<msg.num; n++) {
-        //if (msg.data[n].type == PRM_TYPE) free(msg.ptr[n]);
-        //if (msg.data[n].type == IQ_TYPE) free(msg.ptr[n]);
-        //if (msg.data[n].type == RAW_TYPE) free(msg.ptr[n]);
-        //if (msg.data[n].type == FIT_TYPE) free(msg.ptr[n]);
         if ( (msg.data[n].type == PRM_TYPE) ||
              (msg.data[n].type == IQ_TYPE)  ||
              (msg.data[n].type == RAW_TYPE) ||
@@ -501,7 +490,6 @@ int main(int argc,char *argv[])
 
     } while (1);
 
-    ErrLog(errlog.sock,progname,"Waiting for scan boundary.");
 
     if (exitpoll==0) {
       /* In here comes the sounder code */
@@ -511,15 +499,20 @@ int main(int argc,char *argv[])
       /* set the xcf variable to do cross-correlations (AOA) */
       xcf = 1;
 
+      /* set the sounding mode integration time and number of ranges */
+      intsc = snd_intt_sc;
+      intus = snd_intt_us;
+      nrang = snd_nrang;
+
+      /* make a new timing sequence for the sounding */
+      tsgid = SiteTimeSeq(ptab);
+
       /* we have time until the end of the minute to do sounding */
       /* minus a safety factor given in time_needed */
       TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
       snd_time = 60.0 - (sc + us*1e-6);
 
       while (snd_time-snd_intt > time_needed) {
-        intsc = snd_intt_sc;
-        intus = snd_intt_us;
-        nrang = snd_nrang;
 
         /* set the beam */
         bmnum = snd_bms[snd_bm_cnt] + odd_beams;
@@ -528,19 +521,19 @@ int main(int argc,char *argv[])
         snd_freq = snd_freqs[snd_freq_cnt];
 
         /* the scanning code is here */
-        tsgid = SiteTimeSeq(ptab);
         sprintf(logtxt,"Integrating SND beam:%d intt:%ds.%dus (%d:%d:%d:%d)",bmnum,intsc,intus,hr,mt,sc,us);
         ErrLog(errlog.sock,progname,logtxt);
         ErrLog(errlog.sock,progname,"Setting SND beam.");
         SiteStartIntt(intsc,intus);
+
         ErrLog(errlog.sock, progname, "Doing SND clear frequency search.");
         sprintf(logtxt, "FRQ: %d %d", snd_freq, snd_frqrng);
         ErrLog(errlog.sock,progname, logtxt);
         tfreq = SiteFCLR(snd_freq, snd_freq + snd_frqrng);
-/*
- *           sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
- *                     ErrLog(errlog.sock, progname, logtxt);
- *                     */
+
+        sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
+        ErrLog(errlog.sock, progname, logtxt);
+
         nave = SiteIntegrate(lags);
         if (nave < 0) {
           sprintf(logtxt, "SND integration error: %d", nave);
@@ -621,10 +614,13 @@ int main(int argc,char *argv[])
       }
 
       /* now wait for the next normalscan */
+      ErrLog(errlog.sock,progname,"Waiting for scan boundary.");
+
       intsc = def_intt_sc;
       intus = def_intt_us;
       nrang = def_nrang;
-      if (scannowait==0) SiteEndScan(scnsc,scnus);
+
+      SiteEndScan(scnsc,scnus);
     }
 
   } while (exitpoll == 0);
@@ -646,6 +642,7 @@ void usage(void)
     printf("    -di     : indicates running during discretionary time\n");
     printf(" -frang int : delay to first range (km) [180]\n");
     printf("  -rsep int : range separation (km) [45]\n");
+    printf(" -nrang int : number of range gates [100]\n");
     printf("    -dt int : hour when day freq. is used [site.c]\n");
     printf("    -nt int : hour when night freq. is used [site.c]\n");
     printf("    -df int : daytime frequency (kHz) [site.c]\n");
@@ -712,6 +709,8 @@ void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit
   status = SndFwrite(out, prm, fit);
   if (status == -1) {
     ErrLog(errlog.sock,progname,"Error writing sounding record.");
+  } else {
+    ErrLog(errlog.sock,progname,"Sounding record successfully written.");
   }
 
   fclose(out);
