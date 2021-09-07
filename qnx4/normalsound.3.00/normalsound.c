@@ -516,7 +516,7 @@ int main(int argc,char *argv[]) {
         /* Only send these to echo_data; otherwise they get written to the data files */
         RMsgSndSend(tlist[0], &msg);
 
-        sprintf(logtxt, "SBC: %d  SFC: %d\n", snd_bm_cnt, snd_freq_cnt);
+        sprintf(logtxt, "SBC: %d  SFC: %d", snd_bm_cnt, snd_freq_cnt);
         ErrLog(errlog, progname, logtxt);
 
         /* set the scan variable for the sounding mode data file only */
@@ -529,7 +529,7 @@ int main(int argc,char *argv[]) {
         /* save the sounding mode data */
         write_snd_record(progname, &prm, &fit);
 
-        ErrLog(errlog, progname, "Polling SND for exit.");
+        ErrLog(errlog, progname, "Polling SND for exit.\n");
         exitpoll=RadarShell(sid,&rstable);
         if (exitpoll !=0) break;
 

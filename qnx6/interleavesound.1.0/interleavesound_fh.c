@@ -538,7 +538,7 @@ int main(int argc,char *argv[]) {
           if (msg.data[n].type==FIT_TYPE) free(msg.ptr[n]);
         }
 
-        sprintf(logtxt, "SBC: %d  SFC: %d\n", snd_bm_cnt, snd_freq_cnt);
+        sprintf(logtxt, "SBC: %d  SFC: %d", snd_bm_cnt, snd_freq_cnt);
         ErrLog(errlog.sock, progname, logtxt);
 
         /* set the scan variable for the sounding mode data file only */
@@ -551,7 +551,7 @@ int main(int argc,char *argv[]) {
         /* save the sounding mode data */
         write_snd_record(progname, prm, fit);
 
-        ErrLog(errlog.sock, progname, "Polling SND for exit.");
+        ErrLog(errlog.sock, progname, "Polling SND for exit.\n");
         if (exitpoll !=0) break;
 
         /* check for the end of a beam loop */
