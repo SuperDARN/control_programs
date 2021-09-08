@@ -115,8 +115,6 @@ int main(int argc,char *argv[])
 
   char logtxt[1024];
 
-  int exitpoll=0;
- 
   int scnsc=120;    /* total scan period in seconds */
   int scnus=0;
   int skip;
@@ -470,8 +468,6 @@ int main(int argc,char *argv[])
 
       RadarShell(shell.sock,&rstable);
 
-      if (exitpoll != 0) break;
-
       scan = 0;
       if (bmnum == ebm) break;
 
@@ -481,139 +477,136 @@ int main(int argc,char *argv[])
     } while (1);
 
 
-    if (exitpoll==0) {
-      /* In here comes the sounder code */
-      /* set the "sounder mode" scan variable */
-      scan = -2;
+    /* In here comes the sounder code */
+    /* set the "sounder mode" scan variable */
+    scan = -2;
 
-      /* set the xcf variable to do cross-correlations (AOA) */
-      xcf = 1;
+    /* set the xcf variable to do cross-correlations (AOA) */
+    xcf = 1;
 
-      /* set the sounding mode integration time and number of ranges */
-      intsc = snd_intt_sc;
-      intus = snd_intt_us;
-      nrang = snd_nrang;
+    /* set the sounding mode integration time and number of ranges */
+    intsc = snd_intt_sc;
+    intus = snd_intt_us;
+    nrang = snd_nrang;
 
-      /* make a new timing sequence for the sounding */
-      tsgid = SiteTimeSeq(ptab);
+    /* make a new timing sequence for the sounding */
+    tsgid = SiteTimeSeq(ptab);
 
-      /* we have time until the end of the minute to do sounding */
-      /* minus a safety factor given in time_needed */
-      TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
-      snd_time = 60.0 - (sc + us*1e-6);
+    /* we have time until the end of the minute to do sounding */
+    /* minus a safety factor given in time_needed */
+    TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
+    snd_time = 60.0 - (sc + us*1e-6);
 
-      while (snd_time-snd_intt > time_needed) {
+    while (snd_time-snd_intt > time_needed) {
 
-        /* set the beam */
-        bmnum = snd_bms[snd_bm_cnt] + odd_beams;
+      /* set the beam */
+      bmnum = snd_bms[snd_bm_cnt] + odd_beams;
 
-        /* snd_freq will be an array of frequencies to step through */
-        snd_freq = snd_freqs[snd_freq_cnt];
+      /* snd_freq will be an array of frequencies to step through */
+      snd_freq = snd_freqs[snd_freq_cnt];
 
-        /* the scanning code is here */
-        sprintf(logtxt,"Integrating SND beam:%d intt:%ds.%dus (%d:%d:%d:%d)",bmnum,intsc,intus,hr,mt,sc,us);
-        ErrLog(errlog.sock,progname,logtxt);
-        ErrLog(errlog.sock,progname,"Setting SND beam.");
-        SiteStartIntt(intsc,intus);
+      /* the scanning code is here */
+      sprintf(logtxt,"Integrating SND beam:%d intt:%ds.%dus (%d:%d:%d:%d)",bmnum,intsc,intus,hr,mt,sc,us);
+      ErrLog(errlog.sock,progname,logtxt);
+      ErrLog(errlog.sock,progname,"Setting SND beam.");
+      SiteStartIntt(intsc,intus);
 
-        ErrLog(errlog.sock, progname, "Doing SND clear frequency search.");
-        sprintf(logtxt, "FRQ: %d %d", snd_freq, snd_frqrng);
+      ErrLog(errlog.sock, progname, "Doing SND clear frequency search.");
+      sprintf(logtxt, "FRQ: %d %d", snd_freq, snd_frqrng);
+      ErrLog(errlog.sock,progname, logtxt);
+      tfreq = SiteFCLR(snd_freq, snd_freq + snd_frqrng);
+
+      sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
+      ErrLog(errlog.sock, progname, logtxt);
+
+      nave = SiteIntegrate(lags);
+      if (nave < 0) {
+        sprintf(logtxt, "SND integration error: %d", nave);
         ErrLog(errlog.sock,progname, logtxt);
-        tfreq = SiteFCLR(snd_freq, snd_freq + snd_frqrng);
+        continue;
+      }
+      sprintf(logtxt,"Number of SND sequences: %d",nave);
+      ErrLog(errlog.sock,progname,logtxt);
 
-        sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
-        ErrLog(errlog.sock, progname, logtxt);
+      OpsBuildPrm(prm,ptab,lags);
+      OpsBuildIQ(iq,&badtr);
+      OpsBuildRaw(raw);
+      FitACF(prm,raw,fblk,fit);
 
-        nave = SiteIntegrate(lags);
-        if (nave < 0) {
-          sprintf(logtxt, "SND integration error: %d", nave);
-          ErrLog(errlog.sock,progname, logtxt);
-          continue;
-        }
-        sprintf(logtxt,"Number of SND sequences: %d",nave);
-        ErrLog(errlog.sock,progname,logtxt);
+      ErrLog(errlog.sock, progname, "Sending SND messages.");
+      msg.num = 0;
+      msg.tsize = 0;
 
-        OpsBuildPrm(prm,ptab,lags);
-        OpsBuildIQ(iq,&badtr);
-        OpsBuildRaw(raw);
-        FitACF(prm,raw,fblk,fit);
+      tmpbuf=RadarParmFlatten(prm,&tmpsze);
+      RMsgSndAdd(&msg,tmpsze,tmpbuf,PRM_TYPE,0);
 
-        ErrLog(errlog.sock, progname, "Sending SND messages.");
-        msg.num = 0;
-        msg.tsize = 0;
+      tmpbuf=IQFlatten(iq,prm->nave,&tmpsze);
+      RMsgSndAdd(&msg,tmpsze,tmpbuf,IQ_TYPE,0);
 
-        tmpbuf=RadarParmFlatten(prm,&tmpsze);
-        RMsgSndAdd(&msg,tmpsze,tmpbuf,PRM_TYPE,0);
+      RMsgSndAdd(&msg,sizeof(unsigned int)*2*iq->tbadtr,
+             (unsigned char *) badtr,BADTR_TYPE,0);
 
-        tmpbuf=IQFlatten(iq,prm->nave,&tmpsze);
-        RMsgSndAdd(&msg,tmpsze,tmpbuf,IQ_TYPE,0);
+      RMsgSndAdd(&msg,strlen(sharedmemory)+1,
+             (unsigned char *) sharedmemory,IQS_TYPE,0);
 
-        RMsgSndAdd(&msg,sizeof(unsigned int)*2*iq->tbadtr,
-               (unsigned char *) badtr,BADTR_TYPE,0);
+      tmpbuf=RawFlatten(raw,prm->nrang,prm->mplgs,&tmpsze);
+      RMsgSndAdd(&msg,tmpsze,tmpbuf,RAW_TYPE,0);
 
-        RMsgSndAdd(&msg,strlen(sharedmemory)+1,
-               (unsigned char *) sharedmemory,IQS_TYPE,0);
+      tmpbuf=FitFlatten(fit,prm->nrang,&tmpsze);
+      RMsgSndAdd(&msg,tmpsze,tmpbuf,FIT_TYPE,0);
 
-        tmpbuf=RawFlatten(raw,prm->nrang,prm->mplgs,&tmpsze);
-        RMsgSndAdd(&msg,tmpsze,tmpbuf,RAW_TYPE,0);
+      RMsgSndAdd(&msg,strlen(progname)+1,(unsigned char *) progname,NME_TYPE,0);
 
-        tmpbuf=FitFlatten(fit,prm->nrang,&tmpsze);
-        RMsgSndAdd(&msg,tmpsze,tmpbuf,FIT_TYPE,0);
-
-        RMsgSndAdd(&msg,strlen(progname)+1,(unsigned char *) progname,NME_TYPE,0);
-
-        RMsgSndSend(task[RT_TASK].sock,&msg);
-        for (n=0;n<msg.num;n++) {
-          if (msg.data[n].type==PRM_TYPE) free(msg.ptr[n]);
-          if (msg.data[n].type==IQ_TYPE) free(msg.ptr[n]);
-          if (msg.data[n].type==RAW_TYPE) free(msg.ptr[n]);
-          if (msg.data[n].type==FIT_TYPE) free(msg.ptr[n]);
-        }
-
-        sprintf(logtxt, "SBC: %d  SFC: %d", snd_bm_cnt, snd_freq_cnt);
-        ErrLog(errlog.sock, progname, logtxt);
-
-        /* set the scan variable for the sounding mode data file only */
-        if ((bmnum == snd_bms[0]) && (snd_freq == snd_freqs[0])) {
-          prm->scan = 1;
-        } else {
-          prm->scan = 0;
-        }
-
-        /* save the sounding mode data */
-        write_snd_record(progname, prm, fit);
-
-        ErrLog(errlog.sock, progname, "Polling SND for exit.\n");
-        if (exitpoll !=0) break;
-
-        /* check for the end of a beam loop */
-        snd_freq_cnt++;
-        if (snd_freq_cnt >= snd_freqs_tot) {
-          /* reset the freq counter and increment the beam counter */
-          snd_freq_cnt = 0;
-          snd_bm_cnt++;
-          if (snd_bm_cnt >= snd_bms_tot) {
-            snd_bm_cnt = 0;
-            odd_beams = !odd_beams;
-          }
-        }
-
-        /* see if we have enough time for another go round */
-        TimeReadClock(&yr, &mo, &dy, &hr, &mt, &sc, &us);
-        snd_time = 60.0 - (sc + us*1e-6);
+      RMsgSndSend(task[RT_TASK].sock,&msg);
+      for (n=0;n<msg.num;n++) {
+        if (msg.data[n].type==PRM_TYPE) free(msg.ptr[n]);
+        if (msg.data[n].type==IQ_TYPE) free(msg.ptr[n]);
+        if (msg.data[n].type==RAW_TYPE) free(msg.ptr[n]);
+        if (msg.data[n].type==FIT_TYPE) free(msg.ptr[n]);
       }
 
-      /* now wait for the next normalscan */
-      ErrLog(errlog.sock,progname,"Waiting for scan boundary.");
+      sprintf(logtxt, "SBC: %d  SFC: %d", snd_bm_cnt, snd_freq_cnt);
+      ErrLog(errlog.sock, progname, logtxt);
 
-      intsc = def_intt_sc;
-      intus = def_intt_us;
-      nrang = def_nrang;
+      /* set the scan variable for the sounding mode data file only */
+      if ((bmnum == snd_bms[0]) && (snd_freq == snd_freqs[0])) {
+        prm->scan = 1;
+      } else {
+        prm->scan = 0;
+      }
 
-      SiteEndScan(scnsc,scnus,5000);
+      /* save the sounding mode data */
+      write_snd_record(progname, prm, fit);
+
+      ErrLog(errlog.sock, progname, "Polling SND for exit.\n");
+
+      /* check for the end of a beam loop */
+      snd_freq_cnt++;
+      if (snd_freq_cnt >= snd_freqs_tot) {
+        /* reset the freq counter and increment the beam counter */
+        snd_freq_cnt = 0;
+        snd_bm_cnt++;
+        if (snd_bm_cnt >= snd_bms_tot) {
+          snd_bm_cnt = 0;
+          odd_beams = !odd_beams;
+        }
+      }
+
+      /* see if we have enough time for another go round */
+      TimeReadClock(&yr, &mo, &dy, &hr, &mt, &sc, &us);
+      snd_time = 60.0 - (sc + us*1e-6);
     }
 
-  } while (exitpoll == 0);
+    /* now wait for the next normalscan */
+    ErrLog(errlog.sock,progname,"Waiting for scan boundary.");
+
+    intsc = def_intt_sc;
+    intus = def_intt_us;
+    nrang = def_nrang;
+
+    SiteEndScan(scnsc,scnus,5000);
+
+  } while (1);
 
   for (n=0; n<tnum; n++) RMsgSndClose(task[n].sock);
 
