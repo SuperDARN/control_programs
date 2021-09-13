@@ -194,7 +194,7 @@ int main(int argc,char *argv[]) {
   int snd_frqrng=100;
   int snd_nrang=75;
   float snd_time, snd_intt, time_needed=1.25;
-  int snd_bms_tot, snd_intt_sc, snd_intt_us;
+  int snd_intt_sc, snd_intt_us;
   int fast_intt_sc, fast_intt_us;
 
   if (snd_bms_tot == 8) {
