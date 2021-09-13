@@ -194,21 +194,23 @@ int main(int argc,char *argv[]) {
   int snd_frqrng=100;
   int snd_nrang=75;
   float snd_time, snd_intt, time_needed=1.25;
+  int snd_bms_tot, snd_intt_sc, snd_intt_us;
+  int fast_intt_sc, fast_intt_us;
 
   if (snd_bms_tot == 8) {
-    int normal_intt_sc=6;
-    int normal_intt_us=0;
-    int fast_intt_sc=3;
-    int fast_intt_us=0;
-    int snd_intt_sc=2;
-    int snd_intt_us=0;
-  else if (snd_bms_tot == 10) {
-    int normal_intt_sc=5;
-    int normal_intt_us=0;
-    int fast_intt_sc=2;
-    int fast_intt_us=400000;
-    int snd_intt_sc=1;
-    int snd_intt_us=500000;
+    normal_intt_sc=6;
+    normal_intt_us=0;
+    fast_intt_sc=3;
+    fast_intt_us=0;
+    snd_intt_sc=2;
+    snd_intt_us=0;
+  } else if (snd_bms_tot == 10) {
+    normal_intt_sc=5;
+    normal_intt_us=0;
+    fast_intt_sc=2;
+    fast_intt_us=400000;
+    snd_intt_sc=1;
+    snd_intt_us=500000;
   }
 
   snd_intt = snd_intt_sc + snd_intt_us*1e-6;
