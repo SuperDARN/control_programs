@@ -177,20 +177,22 @@ int main(int argc,char *argv[]) {
   int snd_freq;
   int snd_frqrng=100;
   float snd_time, snd_intt, time_needed=1.25;
+  int snd_bms_tot, snd_intt_sc, snd_intt_us;
+  int fast_intt_sc, fast_intt_us;
   unsigned char limit_fswitch=0;
 
   if (num_scans == 16) {
-    int snd_bms_tot=8;
-    int fast_intt_sc=3;
-    int fast_intt_us=0;
-    int snd_intt_sc=2;
-    int snd_intt_us=0;
-  else if (num_scans == 20) {
-    int snd_bms_tot=10;
-    int fast_intt_sc=2;
-    int fast_intt_us=400000;
-    int snd_intt_sc=1;
-    int snd_intt_us=500000;
+    snd_bms_tot=8;
+    fast_intt_sc=3;
+    fast_intt_us=0;
+    snd_intt_sc=2;
+    snd_intt_us=0;
+  } else if (num_scans == 20) {
+    snd_bms_tot=10;
+    fast_intt_sc=2;
+    fast_intt_us=400000;
+    snd_intt_sc=1;
+    snd_intt_us=500000;
   }
 
   snd_intt = snd_intt_sc + snd_intt_us*1e-6;
