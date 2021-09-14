@@ -236,20 +236,20 @@ int main(int argc,char *argv[]) {
                   &dmpinc,&nmpinc,
                   &frqrng,&xcnt);
 
+  SiteStart();
+
   // For 1-min normal scan
   cp     = 197;
   intsc  = fast_intt_sc;
   intus  = fast_intt_us;
   mppul  = 8;
   mplgs  = 23;
-  mpinc  = 1500;
   dmpinc = 1500;
+  nmpinc = 1500;
   nrang  = 75;
   rsep   = 45;
   txpl   = 300; /* recalculated below with rsep */
   frang  = 180;
-
-  SiteStart();
 
 #if 1
   //maxatten=1;	//Chris
