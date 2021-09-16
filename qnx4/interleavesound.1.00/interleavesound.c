@@ -45,6 +45,10 @@
 
 /*
  $Log: interleavesound.c,v $
+ Revision 1.1  2021/09/15 egthomas
+ Modification to set number of ranges used for frequency
+ sounding independently of nrang for the interleaved scan
+
  Revision 1.0  2019/06/14 egthomas
  Initial revision from interleavedscan and normalsound
  
@@ -57,7 +61,7 @@
 #define TASK_NAMES "echo_data","iqwrite","rawacfwrite","fitacfwrite"
 
 char cmdlne[1024];
-char progid[80]={"$Id: interleavesound.c,v 1.0 2019/06/14 egthomas Exp $"};
+char progid[80]={"$Id: interleavesound.c,v 1.1 2021/09/15 egthomas Exp $"};
 char progname[256];
 struct TaskID *errlog;
 
