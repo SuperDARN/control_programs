@@ -472,6 +472,8 @@ int main(int argc,char *argv[]) {
         SiteSetBeam(bmnum);
 
         ErrLog(errlog, progname, "Doing SND clear frequency search.");
+        sprintf(logtxt,"FRQ: %d %d",snd_freq,snd_frqrng);
+        ErrLog(errlog,progname,logtxt);
         if (SiteFCLR(snd_freq, snd_freq + snd_frqrng)==FREQ_LOCAL)
           ErrLog(errlog,progname,"Frequency Synthesizer in local mode.");
         SiteSetFreq(tfreq);
