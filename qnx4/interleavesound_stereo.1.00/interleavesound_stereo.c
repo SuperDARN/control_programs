@@ -1007,6 +1007,8 @@ void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit
   status = SndFwrite(out, prm, fit);
   if (status == -1) {
     ErrLog(errlog,progname,"Error writing sounding record.");
+  } else {
+    ErrLog(errlog,progname,"Sounding record succesfully written.");
   }
 
   fclose(out);

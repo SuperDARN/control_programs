@@ -418,12 +418,16 @@ void main(int argc,char *argv[]) {
       }
     } while (1);
 
+
     if (exit_poll==0) {
       /* set the "sounder mode" scan variable */
       scan=-2;
 
       /* set the xcf variable to do cross-correlations (AOA) */
       xcf=1;
+
+      /* set the sounding mode integration time and number of ranges */
+      intt = snd_intt;
 
       /* setup the sounder mode integration time */
       /* determine the number of seconds we have for this mode  */
@@ -433,7 +437,6 @@ void main(int argc,char *argv[]) {
       snd_time = 60.0 - (sec+msec/1000.);
 
       while(snd_time-(float)snd_intt > time_needed) {
-        intt = snd_intt;
 
         /* set the beam */
         bmnum = snd_bms[snd_bm_cnt] + odd_beams;

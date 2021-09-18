@@ -1,9 +1,13 @@
 # $Log: version.info,v $
 #
+# Revision 1.1  2021/09/15 egthomas
+# Modification to set number of ranges used for frequency
+# sounding independently of nrang for the interleaved scan
+#
 # Revision 1.0  2019/06/14 egthomas
 # Initial revision from interleavedscan and normalsound
 #
 #
-interleavesound.c 1.00
+interleavesound.c 1.01
 sndwrite.c 1.01
 sndwrite.h 1.00
