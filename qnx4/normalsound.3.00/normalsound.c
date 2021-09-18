@@ -46,8 +46,9 @@
 
 /*
  $Log: normalsound.c,v $
- Revision 3.0  2020/09/25 egthomas
- Modification to use dmap sounding file format
+ Revision 3.0  2021/09/15 egthomas
+ Modification to use dmap sounding file format and
+ independent number of ranges for frequency sounding
 
  Revision 2.7  2008/03/15 00:47:25  code
  Added iqwrite.
@@ -82,7 +83,7 @@
 #define TASK_NAMES "echo_data","iqwrite","rawacfwrite","fitacfwrite"
 
 char cmdlne[1024];
-char progid[80]={"$Id: normalsound.c,v 3.0 2020/09/25 egthomas Exp $"};
+char progid[80]={"$Id: normalsound.c,v 3.0 2021/09/15 egthomas Exp $"};
 char progname[256];
 struct TaskID *errlog;
 
@@ -197,6 +198,7 @@ int main(int argc,char *argv[]) {
   int normal_intt_sc, normal_intt_us;
   int fast_intt_sc, fast_intt_us;
   int snd_intt_sc, snd_intt_us;
+  unsigned char limit_fswitch=0;
 
   if (snd_bms_tot == 8) {
     normal_intt_sc=6;
@@ -291,6 +293,9 @@ int main(int argc,char *argv[]) {
   OptionAdd(&opt, "fast", 'x', &fast);
   OptionAdd(&opt, "frqrng", 'i', &frqrng);
   OptionAdd(&opt, "sfrqrng", 'i',&snd_frqrng); /* sounding FCLR window [kHz] */
+  OptionAdd(&opt, "lf", 'x', &limit_fswitch);  /* limit amount of frequency switching
+                                                  by iterating over all sounding beams
+                                                  before proceeding to next frequency */
 
   arg=OptionProcess(1,argc,argv,&opt,NULL);
 
@@ -538,15 +543,29 @@ int main(int argc,char *argv[]) {
         exitpoll=RadarShell(sid,&rstable);
         if (exitpoll !=0) break;
 
-        /* check for the end of a beam loop */
-        snd_freq_cnt++;
-        if (snd_freq_cnt >= snd_freqs_tot) {
-          /* reset the freq counter and increment the beam counter */
-          snd_freq_cnt = 0;
+        if (limit_fswitch) {
+          /* check for the end of a frequency loop (optional) */
           snd_bm_cnt++;
           if (snd_bm_cnt >= snd_bms_tot) {
+            /* reset the beam counter and increment the freq counter */
             snd_bm_cnt = 0;
             odd_beams = !odd_beams;
+            if (!odd_beams) snd_freq_cnt++;
+            if (snd_freq_cnt >= snd_freqs_tot) {
+              snd_freq_cnt = 0;
+            }
+          }
+        } else {
+          /* check for the end of a beam loop (default) */
+          snd_freq_cnt++;
+          if (snd_freq_cnt >= snd_freqs_tot) {
+            /* reset the freq counter and increment the beam counter */
+            snd_freq_cnt = 0;
+            snd_bm_cnt++;
+            if (snd_bm_cnt >= snd_bms_tot) {
+              snd_bm_cnt = 0;
+              odd_beams = !odd_beams;
+            }
           }
         }
 

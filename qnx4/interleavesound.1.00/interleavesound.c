@@ -531,7 +531,7 @@ int main(int argc,char *argv[]) {
         if (exitpoll !=0) break;
 
         if (limit_fswitch) {
-          /* check for the end of a frequency loop */
+          /* check for the end of a frequency loop (optional) */
           snd_bm_cnt++;
           if (snd_bm_cnt >= snd_bms_tot) {
             /* reset the beam counter and increment the freq counter */
