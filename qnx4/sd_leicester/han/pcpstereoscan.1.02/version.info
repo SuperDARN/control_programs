@@ -1,0 +1,9 @@
+# $Log: version.info,v $
+# Revision 1.2  2006/07/12 15:51:55  code
+# Added call to set up command line and limited data written to rawacf and fitacf.
+#
+# Revision 1.1  2006/03/30 11:28:25  barnes
+# Initial revision
+#
+#
+pcpstereoscan.c 1.02

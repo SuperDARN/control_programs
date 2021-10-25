@@ -46,8 +46,9 @@
 
 /*
  $Log: normalsound.c,v $
- Revision 3.0  2020/09/25 egthomas
- Modification to use dmap sounding file format
+ Revision 3.0  2021/09/15 egthomas
+ Modification to use dmap sounding file format and
+ independent number of ranges for frequency sounding
 
  Revision 2.7  2008/03/15 00:47:25  code
  Added iqwrite.
@@ -82,7 +83,7 @@
 #define TASK_NAMES "echo_data","iqwrite","rawacfwrite","fitacfwrite"
 
 char cmdlne[1024];
-char progid[80]={"$Id: normalsound.c,v 3.0 2020/09/25 egthomas Exp $"};
+char progid[80]={"$Id: normalsound.c,v 3.0 2021/09/15 egthomas Exp $"};
 char progname[256];
 struct TaskID *errlog;
 
@@ -145,6 +146,8 @@ int main(int argc,char *argv[]) {
   int skip;
   int cnt=0;
 
+  int def_nrang=0;
+
   unsigned char fast=0;
   unsigned char discretion=0;
 
@@ -190,22 +193,27 @@ int main(int argc,char *argv[]) {
   int odd_beams=0;
   int snd_freq;
   int snd_frqrng=100;
+  int snd_nrang=75;
   float snd_time, snd_intt, time_needed=1.25;
+  int normal_intt_sc, normal_intt_us;
+  int fast_intt_sc, fast_intt_us;
+  int snd_intt_sc, snd_intt_us;
+  unsigned char limit_fswitch=0;
 
   if (snd_bms_tot == 8) {
-    int normal_intt_sc=6;
-    int normal_intt_us=0;
-    int fast_intt_sc=3;
-    int fast_intt_us=0;
-    int snd_intt_sc=2;
-    int snd_intt_us=0;
-  else if (snd_bms_tot == 10) {
-    int normal_intt_sc=5;
-    int normal_intt_us=0;
-    int fast_intt_sc=2;
-    int fast_intt_us=500000;
-    int snd_intt_sc=1;
-    int snd_intt_us=500000;
+    normal_intt_sc=6;
+    normal_intt_us=0;
+    fast_intt_sc=3;
+    fast_intt_us=0;
+    snd_intt_sc=2;
+    snd_intt_us=0;
+  } else if (snd_bms_tot == 10) {
+    normal_intt_sc=5;
+    normal_intt_us=0;
+    fast_intt_sc=2;
+    fast_intt_us=400000;
+    snd_intt_sc=1;
+    snd_intt_us=500000;
   }
 
   snd_intt = snd_intt_sc + snd_intt_us*1e-6;
@@ -246,19 +254,19 @@ int main(int argc,char *argv[]) {
                   &dmpinc,&nmpinc,
                   &frqrng,&xcnt);
 
+  SiteStart();
+
   cp     = 155;
   intsc  = normal_intt_sc;
   intus  = normal_intt_us;
   mppul  = 8;
   mplgs  = 23;
-  mpinc  = 1500;
   dmpinc = 1500;
+  nmpinc = 1500;
   nrang  = 75;
   rsep   = 45;
   txpl   = 300; /* recalculated below with rsep */
   frang  = 180;
-
-  SiteStart();
 
 #if 1
   //maxatten=1;	//Chris
@@ -285,6 +293,9 @@ int main(int argc,char *argv[]) {
   OptionAdd(&opt, "fast", 'x', &fast);
   OptionAdd(&opt, "frqrng", 'i', &frqrng);
   OptionAdd(&opt, "sfrqrng", 'i',&snd_frqrng); /* sounding FCLR window [kHz] */
+  OptionAdd(&opt, "lf", 'x', &limit_fswitch);  /* limit amount of frequency switching
+                                                  by iterating over all sounding beams
+                                                  before proceeding to next frequency */
 
   arg=OptionProcess(1,argc,argv,&opt,NULL);
 
@@ -305,6 +316,9 @@ int main(int argc,char *argv[]) {
     intsc = fast_intt_sc;
     intus = fast_intt_us;
   }
+
+  def_nrang = nrang;
+
   if (discretion) cp = -cp;
 
   // recalculate txpl
@@ -387,7 +401,6 @@ int main(int argc,char *argv[]) {
       SiteSetFreq(tfreq);
 
       sprintf(logtxt,"Transmitting on: %d (Noise=%g)",tfreq,noise);
-
       ErrLog(errlog,progname,logtxt);
 
       tsgid=SiteTimeSeq(ptab);
@@ -436,7 +449,7 @@ int main(int argc,char *argv[]) {
       else bmnum++;
 
     } while (1);
-    ErrLog(errlog,progname,"Waiting for scan boundary.");
+
 
     if (exitpoll == 0) {
       /* In here comes the sounder code */
@@ -446,14 +459,17 @@ int main(int argc,char *argv[]) {
       /* set the xcf variable to do cross-correlations (AOA) */
       xcf = 1;
 
+      /* set the sounding mode integration time and number of ranges */
+      intsc = snd_intt_sc;
+      intus = snd_intt_us;
+      nrang = snd_nrang;
+
       /* we have time until the end of the minute to do sounding */
       /* minus a safety factor given in time_needed */
       TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
       snd_time = 60.0 - (sc + us*1e-6);
 
       while (snd_time-snd_intt > time_needed) {
-        intsc = snd_intt_sc;
-        intus = snd_intt_us;
 
         /* set the beam */
         bmnum = snd_bms[snd_bm_cnt] + odd_beams;
@@ -467,14 +483,17 @@ int main(int argc,char *argv[]) {
         ErrLog(errlog,progname,"Setting SND beam.");
         SiteSetIntt(intsc,intus);
         SiteSetBeam(bmnum);
+
         ErrLog(errlog, progname, "Doing SND clear frequency search.");
+        sprintf(logtxt,"FRQ: %d %d",snd_freq,snd_frqrng);
+        ErrLog(errlog,progname,logtxt);
         if (SiteFCLR(snd_freq, snd_freq + snd_frqrng)==FREQ_LOCAL)
           ErrLog(errlog,progname,"Frequency Synthesizer in local mode.");
         SiteSetFreq(tfreq);
-/*
+
         sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
         ErrLog(errlog, progname, logtxt);
-*/
+
         tsgid = SiteTimeSeq(ptab);
         nave = SiteIntegrate(lags);
         if (nave < 0) {
@@ -507,7 +526,7 @@ int main(int argc,char *argv[]) {
         /* Only send these to echo_data; otherwise they get written to the data files */
         RMsgSndSend(tlist[0], &msg);
 
-        sprintf(logtxt, "SBC: %d  SFC: %d\n", snd_bm_cnt, snd_freq_cnt);
+        sprintf(logtxt, "SBC: %d  SFC: %d", snd_bm_cnt, snd_freq_cnt);
         ErrLog(errlog, progname, logtxt);
 
         /* set the scan variable for the sounding mode data file only */
@@ -520,19 +539,33 @@ int main(int argc,char *argv[]) {
         /* save the sounding mode data */
         write_snd_record(progname, &prm, &fit);
 
-        ErrLog(errlog, progname, "Polling SND for exit.");
+        ErrLog(errlog, progname, "Polling SND for exit.\n");
         exitpoll=RadarShell(sid,&rstable);
         if (exitpoll !=0) break;
 
-        /* check for the end of a beam loop */
-        snd_freq_cnt++;
-        if (snd_freq_cnt >= snd_freqs_tot) {
-          /* reset the freq counter and increment the beam counter */
-          snd_freq_cnt = 0;
+        if (limit_fswitch) {
+          /* check for the end of a frequency loop (optional) */
           snd_bm_cnt++;
           if (snd_bm_cnt >= snd_bms_tot) {
+            /* reset the beam counter and increment the freq counter */
             snd_bm_cnt = 0;
             odd_beams = !odd_beams;
+            if (!odd_beams) snd_freq_cnt++;
+            if (snd_freq_cnt >= snd_freqs_tot) {
+              snd_freq_cnt = 0;
+            }
+          }
+        } else {
+          /* check for the end of a beam loop (default) */
+          snd_freq_cnt++;
+          if (snd_freq_cnt >= snd_freqs_tot) {
+            /* reset the freq counter and increment the beam counter */
+            snd_freq_cnt = 0;
+            snd_bm_cnt++;
+            if (snd_bm_cnt >= snd_bms_tot) {
+              snd_bm_cnt = 0;
+              odd_beams = !odd_beams;
+            }
           }
         }
 
@@ -542,6 +575,8 @@ int main(int argc,char *argv[]) {
       }
 
       /* now wait for the next normalscan */
+      ErrLog(errlog,progname,"Waiting for scan boundary.");
+
       if (fast) {
         intsc = fast_intt_sc;
         intus = fast_intt_us;
@@ -549,6 +584,8 @@ int main(int argc,char *argv[]) {
         intsc = normal_intt_sc;
         intus = normal_intt_us;
       }
+      nrang = def_nrang;
+
       OpsWaitBoundary(scnsc,scnus);
     }
 
@@ -605,6 +642,8 @@ void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit
   status = SndFwrite(out, prm, fit);
   if (status == -1) {
     ErrLog(errlog,progname,"Error writing sounding record.");
+  } else {
+    ErrLog(errlog,progname,"Sounding record succesfully written.");
   }
 
   fclose(out);

@@ -1,15 +1,4 @@
-# $Log: version.info,v $
-#
-# Revision 3.0  2021/09/15 egthomas
-# Modification to use dmap sounding file format and
-# independent number of ranges for frequency sounding
-#
-#Revision 2.7  2008/03/15 00:47:44  code
-#Added iqwrite.
-#
-#Revision 2.6  2008/03/14 17:48:19  code
-#Added support for I&Q capture.
-#
+#$Log: version.info,v $
 #Revision 2.5  2006/07/12 15:50:45  code
 #Added call to set up command line and limited data written to rawacf and fitacf.
 #
@@ -26,6 +15,5 @@
 #First revision included in the ROS 1.08.
 #
 #
-normalsound.c 3.00
-sndwrite.c 1.01
-sndwrite.h 1.00
+normalsound.c 2.05
+
