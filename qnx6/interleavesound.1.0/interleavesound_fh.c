@@ -451,7 +451,7 @@ int main(int argc,char *argv[]) {
     scan = -2;
 
     /* set the xcf variable to do cross-correlations (AOA) */
-    xcf = 0;
+    xcf = 0; /* FHR cannot collect xcf data -KTS 20211026 */
 
     /* set the sounding mode integration time and number of ranges */
     intsc = snd_intt_sc;
