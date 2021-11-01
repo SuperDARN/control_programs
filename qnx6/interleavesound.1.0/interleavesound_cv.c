@@ -56,7 +56,7 @@ char *ststr=NULL;
 char *dfststr="tst";
 void *tmpbuf;
 size_t tmpsze;
-char progid[80]={"interleavesound"};
+char progid[80]={"interleavesound 2021/11/01"};
 char progname[256];
 int arg=0;
 struct OptionData opt;

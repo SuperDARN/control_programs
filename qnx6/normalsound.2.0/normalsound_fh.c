@@ -60,7 +60,7 @@ char *dfststr="tst";
 void *tmpbuf;
 size_t tmpsze;
 
-char progid[80]={"normalsound"};
+char progid[80]={"normalsound 2021/11/01"};
 char progname[256];
 
 int arg=0;
@@ -492,7 +492,7 @@ int main(int argc,char *argv[])
     scan = -2;
 
     /* set the xcf variable to do cross-correlations (AOA) */
-    /* xcf = 1; FHR cannot collect xcf data -KTS 20211026 */
+    xcf = 0;
 
     /* set the sounding mode integration time and number of ranges */
     intsc = snd_intt_sc;

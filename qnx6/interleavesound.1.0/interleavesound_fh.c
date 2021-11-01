@@ -60,7 +60,7 @@ char *ststr=NULL;
 char *dfststr="tst";
 void *tmpbuf;
 size_t tmpsze;
-char progid[80]={"interleavesound"};
+char progid[80]={"interleavesound 2021/11/01"};
 char progname[256];
 int arg=0;
 struct OptionData opt;
@@ -451,7 +451,7 @@ int main(int argc,char *argv[]) {
     scan = -2;
 
     /* set the xcf variable to do cross-correlations (AOA) */
-    xcf = 1;
+    xcf = 0;
 
     /* set the sounding mode integration time and number of ranges */
     intsc = snd_intt_sc;
