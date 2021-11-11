@@ -76,7 +76,7 @@ struct OptionData opt;
 
 int main(int argc,char *argv[]) {
 
-  /* The pulse sequence table and lags for katscan */ 
+  /* The pulse sequence table and lags for katscan */
   int ptab[8] = {0,14,22,24,27,31,42,43};
 
   int lags[LAG_SIZE][2] = {
@@ -226,7 +226,7 @@ int main(int argc,char *argv[]) {
   for (n=1;n<argc;n++) {
     strcat(cmdlne," ");
     strcat(cmdlne,argv[n]);
-  } 
+  }
 
   strncpy(combf,progid,80);
   OpsSetupCommand(argc,argv);
@@ -579,7 +579,7 @@ int main(int argc,char *argv[]) {
   ErrLog(errlog,progname,"Ending program.");
   RShellTerminate(sid);
   return 0;
-} 
+}
 
 
 /********************** function write_snd_record() ************************/
