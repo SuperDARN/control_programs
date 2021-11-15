@@ -1,5 +1,9 @@
 # $Log: version.info,v $
 #
+# Revision 3.1  2021/11/15 egthomas
+# Modification to set default nrang before SiteStart to
+# allow site-specific number of ranges for normal scan
+#
 # Revision 3.0  2021/09/15 egthomas
 # Modification to use dmap sounding file format and
 # independent number of ranges for frequency sounding
@@ -26,6 +30,6 @@
 #First revision included in the ROS 1.08.
 #
 #
-normalsound.c 3.00
+normalsound.c 3.01
 sndwrite.c 1.01
 sndwrite.h 1.00

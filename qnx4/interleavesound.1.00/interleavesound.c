@@ -45,6 +45,10 @@
 
 /*
  $Log: interleavesound.c,v $
+ Revision 1.2  2021/11/15 egthomas
+ Modification to set default nrang before SiteStart to
+ allow site-specific number of ranges for interleaved scan
+
  Revision 1.1  2021/09/15 egthomas
  Modification to set number of ranges used for frequency
  sounding independently of nrang for the interleaved scan
@@ -61,7 +65,7 @@
 #define TASK_NAMES "echo_data","iqwrite","rawacfwrite","fitacfwrite"
 
 char cmdlne[1024];
-char progid[80]={"$Id: interleavesound.c,v 1.1 2021/09/15 egthomas Exp $"};
+char progid[80]={"$Id: interleavesound.c,v 1.2 2021/11/15 egthomas Exp $"};
 char progname[256];
 struct TaskID *errlog;
 
@@ -167,7 +171,7 @@ int main(int argc,char *argv[]) {
   int snd_bms[10] = {20,18,16,14,12,10,8,6,4,2};
   */
 
-  /* ------------------------------------------------------- */ 
+  /* ------------------------------------------------------- */
   int bmseqnum = 0;
 
 
@@ -240,6 +244,8 @@ int main(int argc,char *argv[]) {
                   &dmpinc,&nmpinc,
                   &frqrng,&xcnt);
 
+  nrang  = 75;
+
   SiteStart();
 
   // For 1-min normal scan
@@ -250,7 +256,6 @@ int main(int argc,char *argv[]) {
   mplgs  = 23;
   dmpinc = 1500;
   nmpinc = 1500;
-  nrang  = 75;
   rsep   = 45;
   txpl   = 300; /* recalculated below with rsep */
   frang  = 180;
