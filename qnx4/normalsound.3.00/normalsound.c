@@ -152,7 +152,8 @@ int main(int argc,char *argv[]) {
 
   int def_nrang=0;
 
-  unsigned char fast=0;
+  unsigned char fast=1;
+  unsigned char slow=0;
   unsigned char discretion=0;
 
   /* -------------- Beam sequence for sounding ------------- */
@@ -296,6 +297,7 @@ int main(int argc,char *argv[]) {
   OptionAdd(&opt, "nf", 'i', &nfrq);
   OptionAdd(&opt, "xcf", 'i', &xcnt);
   OptionAdd(&opt, "fast", 'x', &fast);
+  OptionAdd(&opt, "slow", 'x', &slow);
   OptionAdd(&opt, "frqrng", 'i', &frqrng);
   OptionAdd(&opt, "sfrqrng", 'i',&snd_frqrng); /* sounding FCLR window [kHz] */
   OptionAdd(&opt, "lf", 'x', &limit_fswitch);  /* limit amount of frequency switching
@@ -313,6 +315,8 @@ int main(int argc,char *argv[]) {
   OpsLogStart(errlog,progname,argc,argv);
 
   SiteSetupHardware();
+
+  if (slow) fast = 0;
 
   if (fast) {
     cp = 157;  /* fastsound */

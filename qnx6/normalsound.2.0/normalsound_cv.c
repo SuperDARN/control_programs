@@ -120,7 +120,8 @@ int main(int argc,char *argv[])
   int skip;
   int cnt=0;
 
-  unsigned char fast=0;
+  unsigned char fast=1;
+  unsigned char slow=0;
   unsigned char discretion=0;
   int fixfrq=0;
 
@@ -210,6 +211,7 @@ int main(int argc,char *argv[])
   OptionAdd(&opt, "bp",     'i', &baseport);
   OptionAdd(&opt, "stid",   't', &ststr);
   OptionAdd(&opt, "fast",   'x', &fast);
+  OptionAdd(&opt, "slow",   'x', &slow);
   OptionAdd(&opt, "sb",     'i', &sbm);
   OptionAdd(&opt, "eb",     'i', &ebm);
   OptionAdd(&opt, "fixfrq", 'i', &fixfrq);     /* fix the transmit frequency */
@@ -307,6 +309,8 @@ int main(int argc,char *argv[])
     ErrLog(errlog.sock,progname,"Error locating hardware.");
     exit (1);
   }
+
+  if (slow) fast = 0;
 
   beams=abs(ebm-sbm)+1;
   if (fast) {
