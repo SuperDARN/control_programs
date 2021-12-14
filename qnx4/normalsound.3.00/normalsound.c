@@ -46,6 +46,10 @@
 
 /*
  $Log: normalsound.c,v $
+ Revision 3.2  2021/12/03 egthomas
+ Modification to set default scan duration to 1-min
+ (fast) and allow 2-min operation via -slow option
+
  Revision 3.1  2021/11/15 egthomas
  Modification to set default nrang before SiteStart to
  allow site-specific number of ranges for normal scan
@@ -87,7 +91,7 @@
 #define TASK_NAMES "echo_data","iqwrite","rawacfwrite","fitacfwrite"
 
 char cmdlne[1024];
-char progid[80]={"$Id: normalsound.c,v 3.1 2021/11/15 egthomas Exp $"};
+char progid[80]={"$Id: normalsound.c,v 3.2 2021/12/03 egthomas Exp $"};
 char progname[256];
 struct TaskID *errlog;
 
