@@ -1,0 +1,52 @@
+Radar Control Program Name:
+==========================
+themissound
+
+Control Program ID (CPID):
+=========================
+3302
+
+Parameters:
+==========
+nbeams: 16+
+intt: 2.4 s
+scan: 2 min
+ngates: 75+
+frang: 180 km
+rsep: 45 km
+
+Description:
+===========
+themissound is a variant on the themisscan and normalsound
+radar control programs. themissound performs a 2-min scan in a
+nonsequential manner by interleaving a "camping" beam,
+e.g. (0-c-1-c-2-c-3-c-...-14-c-15-c). In the remaining time until
+the end of the minute it performs scans through a set of up to
+12 frequencies and through all beams [even/odd]. Note that unlike
+previous versions of normalsound, this information is not used to
+adjust the radar operating frequency in real-time.
+
+The control program requires a radar-specific sounding file called
+"sounder_[rad].dat", where "[rad]" should be replaced by
+the three-letter radar station string. By default, the control
+program will look for this file in the SD_SND_PATH directory.
+This file should contain the following values (one per line):
+
+Number of sounder frequencies (maximum of 12)
+The sounder frequencies [kHz]
+
+If this file does not exist, default values are used. This
+is not a good idea, as the program may try to sound at
+forbidden frequencies.
+
+The sounding data are written to *.snd files in the SD_SND_PATH
+directory. If this environment variable is not set, the control
+program will attempt to write the sounding data to the "/data/ros/snd"
+directory. If this directory does not exist, no sounding data will
+be written. The 2-hr sounding files contain a reduced set of
+radar operating parameters and fitted values (e.g., velocity,
+power, spectral width, phi0) in dmap-format.
+
+Source:
+======
+E.G. Thomas (20220502)

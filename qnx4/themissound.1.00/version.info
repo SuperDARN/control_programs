@@ -1,0 +1,9 @@
+# $Log: version.info,v $
+#
+# Revision 1.0  2022/05/02 egthomas
+# Initial revision from themisscan and normalsound
+#
+#
+themissound.c 1.00
+sndwrite.c 1.01
+sndwrite.h 1.00
