@@ -221,6 +221,9 @@ int main(int argc,char *argv[]) {
   }
 
   strncpy(combf,progid,80);
+  strncpy(combfA,progid,80);
+  strncpy(combfB,progid,80);
+
   OpsSetupCommand(argc,argv);
   OpsSetupRadar();
   OpsSetupShell();
