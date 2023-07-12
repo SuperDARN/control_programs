@@ -196,7 +196,7 @@ int main(int argc,char *argv[]) {
   /* ---------------- Variables for sounding --------------- */
   char snd_filename[100];
   FILE *snd_dat;
-  /* If the file $SD_SND_PATH/sounder_[rad].dat exists, the next two parameters are read from it */
+  /* If the file $SITE_CFG/site.[rad]/sounder_[rad].dat exists, the next two parameters are read from it */
   /* the file contains one integer value per line */
   int snd_freqs_tot=8;
   int snd_freqs[MAX_SND_FREQS]= {11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 0, 0, 0, 0 };
