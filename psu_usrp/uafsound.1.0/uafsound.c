@@ -74,7 +74,7 @@
 #define RT_TASK 3
 
 void write_snd_record(char *progname, struct RadarParm *prm,
-                      struct FitData *fit);
+                      struct FitData *fit, char *ststr);
 
 int main(int argc,char *argv[]) {
   char progid[80]={"uafsound 2023/07/12"};
@@ -214,6 +214,8 @@ int main(int argc,char *argv[]) {
   int snd_intt_sc=1;
   int snd_intt_us=500000;
   float snd_time, snd_intt, time_needed=1.25;
+
+  char *path;
   /* ------------------------------------------------------- */
 
   /* create commandline argument structs */
@@ -925,7 +927,7 @@ int main(int argc,char *argv[]) {
       sprintf(logtxt,"Transmitting SND on: %d (Noise=%g)",tfreq,noise);
       ErrLog(errlog.sock, progname, logtxt);
 
-      nave = SiteIntegrate(seq->lags);
+      nave = SiteIntegrate(lags);
       if (nave < 0) {
         sprintf(logtxt, "SND integration error: %d", nave);
         ErrLog(errlog.sock,progname, logtxt);
@@ -967,10 +969,8 @@ int main(int argc,char *argv[]) {
         prm->scan = 0;
       }
 
-      OpsBuildSnd(prm,fit);
-
       /* save the sounding mode data */
-      write_snd_record(progname, prm, fit);
+      write_snd_record(progname, prm, fit, ststr);
 
       ErrLog(errlog.sock, progname, "Polling SND for exit.\n");
 
@@ -1017,7 +1017,7 @@ int main(int argc,char *argv[]) {
 /********************** function write_snd_record() ************************/
 /* changed the output to dmap format */
 
-void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit) {
+void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit, char *ststr) {
 
   char data_path[100], data_filename[50], filename[80];
 
