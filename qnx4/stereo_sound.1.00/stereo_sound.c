@@ -365,7 +365,7 @@ int main(int argc,char *argv[]) {
     exit(-1);
   }
 
-  /* check for normal scan emulation */
+  /* check for 2-min normal scan emulation */
   if (ns) {
     frangA      = FRANG_A;
     rsepA       = RSEP_A;
@@ -378,9 +378,8 @@ int main(int argc,char *argv[]) {
     scnus = 0.0;
     cpA = CPID_NS;
     cpB = 20155;
-  } else
-    /* check for fast scan emulation */
-  if (fs) {
+  } else {
+    /* 1-min fast scan emulation */
     frangA      = FRANG_A;
     rsepA       = RSEP_A;
     low_beam_A  = LOW_BEAM_A;
