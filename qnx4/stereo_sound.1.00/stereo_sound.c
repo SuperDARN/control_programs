@@ -51,7 +51,7 @@
 
 
 #define CPID_A  152
-#define CPID_B  26155
+#define CPID_B  20155
 #define CPID_NS 152
 #define CPID_FS 153
 
