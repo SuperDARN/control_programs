@@ -44,9 +44,9 @@
 
 /*
  $Log: stereo_sound.c,v $
- Revision 1.1  2023/08/29 egthomas
+ Revision 1.1  2023/09/04 egthomas
  Modification to set default scan duration to 1-min
- (fast) and set the correct CPID_B value
+ (fast) and set the correct CPID values
 
  Revision 1.0  2023/04/13 egthomas
  Initial revision from stereoscan and normalsound
@@ -54,10 +54,10 @@
 */
 
 
-#define CPID_A  152
+#define CPID_A  155
 #define CPID_B  20155
-#define CPID_NS 152
-#define CPID_FS 153
+#define CPID_NS 155
+#define CPID_FS 157
 
 
 #define INTT      7
@@ -105,7 +105,7 @@ void RemInvalidBeams(int ibeamsA[], int ibeamsB[]);
 void FindNumBeams(int *numbeamsA, int *numbeamsB, int ibeamsA[], int ibeamsB[], int print);
 
 char cmdlne[1024];
-char progid[80]={"stereo_sound.c 1.1 2023/08/29 egthomas"};
+char progid[80]={"stereo_sound.c 1.1 2023/09/04 egthomas"};
 char progname[256];
 struct TaskID *errlog;
 
