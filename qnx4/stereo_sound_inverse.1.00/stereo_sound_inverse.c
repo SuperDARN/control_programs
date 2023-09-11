@@ -461,7 +461,7 @@ int main(int argc,char *argv[]) {
     3) if high and low beams were specified         = low_beam -> high_beam
   */
 
-  sprintf(progname,"stereo_sound");
+  sprintf(progname,"stereo_sound_inverse");
 
   OpsFitACFStart();
 
