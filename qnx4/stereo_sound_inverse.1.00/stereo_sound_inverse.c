@@ -68,9 +68,9 @@
 #define LOW_BEAM_B   0
 #define HIGH_BEAM_B  15
 
-#define DEFAULT_BAND_A_HKW 2
+#define DEFAULT_BAND_B_HKW 2
 
-#define DEFAULT_BAND_A_LYR 25
+#define DEFAULT_BAND_B_LYR 25
 
 #define UCONT_NAME "ucont_moni"
 
@@ -230,11 +230,11 @@ int main(int argc,char *argv[]) {
 
   //set up default frequencies
   if (stid == 41) {
-    dfrqB = DEFAULT_BAND_A_HKW;
-    nfrqB = DEFAULT_BAND_A_HKW;
+    dfrqB = DEFAULT_BAND_B_HKW;
+    nfrqB = DEFAULT_BAND_B_HKW;
   } else if (stid == 90) {
-    dfrqB = DEFAULT_BAND_A_LYR;
-    nfrqB = DEFAULT_BAND_A_LYR;
+    dfrqB = DEFAULT_BAND_B_LYR;
+    nfrqB = DEFAULT_BAND_B_LYR;
   } else {
     printf("stereo_sound_inverse not ready for this radar: %d\n",stid);
     exit(-1);
