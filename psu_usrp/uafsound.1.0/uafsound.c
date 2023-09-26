@@ -77,7 +77,7 @@ void write_snd_record(char *progname, struct RadarParm *prm,
                       struct FitData *fit, char *ststr);
 
 int main(int argc,char *argv[]) {
-  char progid[80]={"uafsound 2023/07/12"};
+  char progid[80]={"uafsound 2023/09/18"};
   char progname[256]="uafsound";
   char modestr[32];
 
@@ -213,7 +213,7 @@ int main(int argc,char *argv[]) {
   int snd_sc=-1;
   int snd_intt_sc=1;
   int snd_intt_us=500000;
-  float snd_time, snd_intt, time_needed=1.25;
+  float snd_time, snd_intt, time_needed=0.1;
 
   char *path;
   /* ------------------------------------------------------- */
@@ -712,6 +712,7 @@ int main(int argc,char *argv[]) {
      if (SiteStartScan(nBeams_per_scan, scan_beam_number_list, scan_clrfreq_fstart_list, scan_clrfreq_bandwidth_list, ai_fixfrq->ival[0], sync_scan, scan_times, scnsc, scnus, intsc, intus, iBeam) !=0) continue;
 */
 
+    TimeReadClock(&yr,&mo,&dy,&hr,&mt,&sc,&us);
     if (OpsReOpen(2,0,0) !=0) {
       ErrLog(errlog.sock,progname,"Opening new files.");
       for (n=0;n<tnum;n++) {
@@ -823,8 +824,6 @@ int main(int argc,char *argv[]) {
  
       tmpbuf=FitFlatten(fit,prm->nrang,&tmpsze);
       RMsgSndAdd(&msg,tmpsze,tmpbuf,FIT_TYPE,0); 
-
-      RMsgSndAdd(&msg,strlen(progname)+1,(unsigned char *) progname, NME_TYPE,0);   
      
      
       for (n=0;n<tnum;n++) RMsgSndSend(task[n].sock,&msg); 
@@ -916,7 +915,7 @@ int main(int argc,char *argv[]) {
       /* the scanning code is here */
       sprintf(logtxt,"Integrating SND beam:%d intt:%ds.%dus (%d:%d:%d:%d)",bmnum,intsc,intus,hr,mt,sc,us);
       ErrLog(errlog.sock,progname,logtxt);
-      ErrLog(errlog.sock,progname,"Setting SND beam.");
+      ErrLog(errlog.sock,progname,"Starting SND Integration.");
       SiteStartIntt(intsc,intus);
 
       ErrLog(errlog.sock, progname, "Doing SND clear frequency search.");
@@ -937,11 +936,9 @@ int main(int argc,char *argv[]) {
       ErrLog(errlog.sock,progname,logtxt);
 
       OpsBuildPrm(prm,ptab,lags);
-      OpsBuildIQ(iq,&badtr);
       OpsBuildRaw(raw);
       FitACF(prm,raw,fblk,fit);
 
-      ErrLog(errlog.sock, progname, "Sending SND messages.");
       msg.num = 0;
       msg.tsize = 0;
 
@@ -954,8 +951,6 @@ int main(int argc,char *argv[]) {
       RMsgSndSend(task[RT_TASK].sock,&msg);
       for (n=0;n<msg.num;n++) {
         if (msg.data[n].type==PRM_TYPE) free(msg.ptr[n]);
-        if (msg.data[n].type==IQ_TYPE) free(msg.ptr[n]);
-        if (msg.data[n].type==RAW_TYPE) free(msg.ptr[n]);
         if (msg.data[n].type==FIT_TYPE) free(msg.ptr[n]);
       }
 
@@ -972,7 +967,7 @@ int main(int argc,char *argv[]) {
       /* save the sounding mode data */
       write_snd_record(progname, prm, fit, ststr);
 
-      ErrLog(errlog.sock, progname, "Polling SND for exit.\n");
+      ErrLog(errlog.sock, progname, "Polling SND for exit.");
 
       snd_iBeam++;
       if (snd_iBeam >= snd_nBeams_per_scan) break;
