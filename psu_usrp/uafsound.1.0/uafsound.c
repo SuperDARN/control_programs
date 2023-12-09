@@ -991,7 +991,7 @@ int main(int argc,char *argv[]) {
     rsep = def_rsep;
     txpl = def_txpl;
 
-    SiteEndScan(scnsc,scnus,5000);
+    SiteEndScan(scnsc,scnus);
   } while (1);
   for (n=0;n<tnum;n++) RMsgSndClose(task[n].sock);
   
@@ -1014,7 +1014,7 @@ int main(int argc,char *argv[]) {
 
 void write_snd_record(char *progname, struct RadarParm *prm, struct FitData *fit, char *ststr) {
 
-  char data_path[100], data_filename[50], filename[80];
+  char data_path[100], data_filename[50], filename[200];
 
   char *snd_dir;
   FILE *out;
